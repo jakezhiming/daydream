@@ -8,9 +8,56 @@ document.addEventListener('DOMContentLoaded', () => {
         "Write me a story about...",
         "I'm thinking of a world where...",
         "What if technology could...",
-        "Explore the concept of..."
+        "Explore the concept of...",
+        "Design a solution for...",
+        "Imagine a future where...",
+        "Create a character who...",
+        "In an alternate reality...",
+        "Transform everyday life by...",
+        "Revolutionize the way we...",
+        "Build a community around...",
+        "Reinvent the concept of...",
+        "Challenge the assumption that..."
+    ];
+    const LOADING_MESSAGES = [
+        "Dreaming up possibilities...",
+        "Exploring new ideas...",
+        "Wandering through imagination...",
+        "Chasing creative thoughts...",
+        "Weaving dreams together...",
+        "Gathering inspiration...",
+        "Connecting the dots...",
+        "Following the daydream...",
+        "Brewing up ideas...",
+        "Letting imagination flow..."
+    ];
+    const WAKING_MESSAGES = [
+        "Waking up...",
+        "Coming back to reality...",
+        "Gathering the dream pieces...",
+        "Crystallizing thoughts...",
+        "Bringing the dream to life...",
+        "Emerging from imagination...",
+        "Capturing the essence...",
+        "Drawing conclusions...",
+        "Wrapping up the journey...",
+        "Making sense of it all..."
     ];
     const STORAGE_KEY = 'daydreamSession';
+
+    // Track last shown messages to avoid repeats
+    let lastLoadingMessage = '';
+    let lastWakingMessage = '';
+
+    // Function to get random message avoiding the last shown one
+    function getRandomMessage(messages, lastShown) {
+        let availableMessages = messages.filter(msg => msg !== lastShown);
+        if (availableMessages.length === 0) {
+            // If only one message exists, or if filtering somehow resulted in none, return any message
+            return messages[Math.floor(Math.random() * messages.length)];
+        }
+        return availableMessages[Math.floor(Math.random() * availableMessages.length)];
+    }
 
     // --- DOM Elements ---
     const initialPromptsSection = document.getElementById('initial-prompts-section');
@@ -43,10 +90,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- State Management ---
     let sessionState = {
-        history: [], // Array of chosen prompts
-        currentOptions: [], // Array of AI-generated options for the current step
-        cycleCount: 0,
+        steps: [], // Array of { prompt: string, options: string[] }
+        currentStepIndex: -1, // -1: initial screen, 0: first step completed, etc.
         isComplete: false,
+        finalSummary: null, // Store the final summary text
     };
 
     function saveState() {
@@ -63,11 +110,30 @@ document.addEventListener('DOMContentLoaded', () => {
             const savedState = localStorage.getItem(STORAGE_KEY);
             if (savedState) {
                 sessionState = JSON.parse(savedState);
-                // Basic validation
-                if (!sessionState.history) sessionState.history = [];
-                if (!sessionState.currentOptions) sessionState.currentOptions = [];
-                if (typeof sessionState.cycleCount !== 'number') sessionState.cycleCount = 0;
+                // Basic validation and default values for the new structure
+                if (!Array.isArray(sessionState.steps)) sessionState.steps = [];
+                if (typeof sessionState.currentStepIndex !== 'number') sessionState.currentStepIndex = -1;
                 if (typeof sessionState.isComplete !== 'boolean') sessionState.isComplete = false;
+                if (sessionState.isComplete && typeof sessionState.finalSummary !== 'string') {
+                    // If marked complete but no summary, treat as incomplete.
+                    console.warn("Loaded session is marked complete, but summary text is missing. Resetting completion status.");
+                    sessionState.isComplete = false;
+                    sessionState.finalSummary = null;
+                     // If steps are empty and it was complete, reset fully.
+                     if (sessionState.steps.length === 0) {
+                         resetState(); // Call resetState to ensure clean initial state
+                         return; // Exit early as resetState handles defaults
+                     } else {
+                         // Ensure index is valid if we reset completion
+                         sessionState.currentStepIndex = Math.max(-1, Math.min(sessionState.currentStepIndex, sessionState.steps.length - 1));
+                     }
+                }
+                 // Ensure currentStepIndex is within bounds relative to steps array
+                if (sessionState.steps.length === 0) {
+                    sessionState.currentStepIndex = -1;
+                } else {
+                    sessionState.currentStepIndex = Math.max(-1, Math.min(sessionState.currentStepIndex, sessionState.steps.length - 1));
+                }
 
             } else {
                 resetState(); // Initialize if nothing is saved
@@ -80,30 +146,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resetState() {
         sessionState = {
-            history: [],
-            currentOptions: [],
-            cycleCount: 0,
-            isComplete: false
+            steps: [],
+            currentStepIndex: -1,
+            isComplete: false,
+            finalSummary: null
         };
         localStorage.removeItem(STORAGE_KEY); // Clear storage explicitly
     }
 
     // --- API Interaction ---
-    async function fetchExpansions(promptText) {
+    async function fetchExpansions(chosenPrompt) {
         showLoading();
         hideError();
-        sessionState.history.push(promptText); // Add the chosen/typed prompt to history
-        sessionState.cycleCount++;
-        saveState(); // Save state *before* API call
+
+        // Construct history for API based on current state + new prompt
+        const historyForAPI = sessionState.currentStepIndex === -1
+            ? [chosenPrompt]
+            : sessionState.steps.slice(0, sessionState.currentStepIndex + 1).map(s => s.prompt).concat(chosenPrompt);
+
+        // No state change *before* the API call
 
         try {
             const response = await fetch(API_EXPAND_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // 'X-CSRFToken': getCsrfToken(), // Include CSRF token if needed
+                    // 'X-CSRFToken': getCsrfToken(),
                 },
-                body: JSON.stringify({ history: sessionState.history }),
+                body: JSON.stringify({ history: historyForAPI }), // Send the potential future history
             });
 
             if (!response.ok) {
@@ -114,28 +184,39 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.status === 'success' && data.options) {
-                sessionState.currentOptions = data.options;
+                 // --- State update on success ---
+                const fetchedOptions = data.options;
+                const newStep = { prompt: chosenPrompt, options: fetchedOptions };
+
+                sessionState.currentStepIndex++; // Move to the new step index
+                // Truncate any steps that might exist if we went back and chose a different path
+                sessionState.steps = sessionState.steps.slice(0, sessionState.currentStepIndex);
+                sessionState.steps.push(newStep); // Add the new step data
+
+                sessionState.isComplete = false; // Ensure not complete if we took a new step
+                sessionState.finalSummary = null;
+
                 saveState();
-                // render() will be called in finally block
+                // --- End State update ---
+
             } else {
                 throw new Error(data.message || 'Failed to get expansions from server.');
             }
         } catch (error) {
             console.error('Error fetching expansions:', error);
             showError(`Failed to get next steps: ${error.message}. Please try again.`);
-            // Rollback state? Maybe remove the last history item?
-            // sessionState.history.pop();
-            // sessionState.cycleCount--;
-            // saveState();
-            // render(); // Re-render previous state
+            // Do not change state on error
         } finally {
             hideLoading();
-            render(); // Call render once after everything is done
+            render(); // Render the new state (or the old one if error occurred)
         }
     }
 
     async function fetchCompletion() {
         hideError();
+
+        // Construct history from the current steps' prompts
+        const historyForAPI = sessionState.steps.slice(0, sessionState.currentStepIndex + 1).map(s => s.prompt);
 
         try {
             const response = await fetch(API_COMPLETE_URL, {
@@ -144,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     // 'X-CSRFToken': getCsrfToken(),
                 },
-                body: JSON.stringify({ history: sessionState.history }),
+                body: JSON.stringify({ history: historyForAPI }),
             });
 
             if (!response.ok) {
@@ -155,99 +236,125 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.status === 'success' && data.summary) {
+                 // --- State update on success ---
                 sessionState.isComplete = true;
-                saveState(); // Save completion status
-                renderFinalDream(data.summary);
+                sessionState.finalSummary = data.summary;
+                saveState();
+                 // --- End State update ---
+
+                renderFinalDream(data.summary); // Render final dream immediately
+                hideLoading(); // Hide loading indicator after rendering final dream
             } else {
                 throw new Error(data.message || 'Failed to get summary from server.');
             }
         } catch (error) {
             console.error('Error fetching completion:', error);
             showError(`Failed to complete dream: ${error.message}. You can try again or go back.`);
-        } finally {
-            hideLoading(); // Ensure loading is hidden regardless of success/failure
-            // If fetchCompletion succeeded, renderFinalDream was called.
-            // If it failed, we need render() to restore the previous state.
-            if (!sessionState.isComplete) {
-                render();
-            }
+            // Hide loading and re-render previous state on error
+            hideLoading();
+            render();
         }
+         // No finally block needed here if success/error handles render/hideLoading
     }
 
     // --- Rendering Logic ---
     function render() {
         hideError(); // Clear previous errors on re-render
 
-        if (sessionState.isComplete) {
-            // This case should be handled by renderFinalDream directly after fetchCompletion
-            // but added here as a safeguard if state is loaded as complete.
-            // It might need the actual summary text, which isn't stored persistently.
-            // Consider re-fetching completion if state loads as complete but text is missing.
-             console.warn("Render called while state is complete. Ideally, renderFinalDream handles this.");
-             // Attempt to show reset button if needed
-             showFinalScreen();
+        if (sessionState.isComplete && sessionState.finalSummary) {
+            // If state is complete and summary exists, render final dream
+            renderFinalDream(sessionState.finalSummary);
             return;
         }
+        // Ensure final dream section is hidden if we are not complete
+        finalDreamSection.style.display = 'none';
 
 
-        if (sessionState.history.length === 0) {
+        if (sessionState.currentStepIndex === -1) {
             // Initial State
             initialPromptsSection.style.display = 'block';
             currentPromptSection.style.display = 'none';
             optionsSection.style.display = 'none';
             controlsSection.style.display = 'none';
-            finalDreamSection.style.display = 'none';
+            // finalDreamSection handled above
 
-            // Populate default prompts
+            // Randomly select 5 prompts from the DEFAULT_PROMPTS array
+            const shuffledPrompts = [...DEFAULT_PROMPTS].sort(() => Math.random() - 0.5);
+            const selectedPrompts = shuffledPrompts.slice(0, 5);
+
+            // Populate randomly selected prompts
             initialPromptList.innerHTML = ''; // Clear previous
-            DEFAULT_PROMPTS.forEach(prompt => {
+            selectedPrompts.forEach(prompt => {
                 const li = document.createElement('li');
                 li.textContent = prompt;
                 li.addEventListener('click', () => handlePromptSelection(prompt));
                 initialPromptList.appendChild(li);
             });
             customPromptInput.value = ''; // Clear input
-            // Ensure custom prompt input is visible when rendering initial state
-            initialPromptsSection.querySelector('.custom-prompt').style.display = 'flex';
+            initialPromptsSection.querySelector('.custom-prompt').style.display = 'flex'; // Ensure input is visible
 
         } else {
-            // Active Ideation State
+            // Active Ideation State (currentStepIndex >= 0)
             initialPromptsSection.style.display = 'none';
             currentPromptSection.style.display = 'block';
             optionsSection.style.display = 'block';
             controlsSection.style.display = 'block';
-            finalDreamSection.style.display = 'none';
+             // finalDreamSection handled above
 
+            const currentStep = sessionState.steps[sessionState.currentStepIndex];
+            if (!currentStep) {
+                console.error("Render error: Invalid currentStepIndex or missing step data.", sessionState);
+                showError("An internal error occurred. Please try resetting.");
+                resetState(); // Attempt to recover by resetting
+                render(); // Re-render initial state
+                return;
+            }
 
             // Display current prompt and history breadcrumbs
-            const lastPrompt = sessionState.history[sessionState.history.length - 1];
-            currentPromptText.textContent = lastPrompt;
-            promptHistoryDisplay.textContent = `Path: ${sessionState.history.slice(0, -1).map(p => `"${p.substring(0, 15)}..."`).join(' > ')} > "${lastPrompt.substring(0, 25)}..."`;
+            currentPromptText.textContent = currentStep.prompt;
+
+            promptHistoryDisplay.textContent = sessionState.steps
+                .slice(0, sessionState.currentStepIndex) // History is steps *before* current
+                .map(s => s.prompt)
+                .join(' > ');
 
 
-            // Display AI options
+            // Display AI options from the *current* step's saved options
             optionsList.innerHTML = ''; // Clear previous
-            sessionState.currentOptions.forEach(option => {
-                const li = document.createElement('li');
-                li.textContent = option;
-                li.addEventListener('click', () => handlePromptSelection(option));
-                optionsList.appendChild(li);
-            });
+            if (currentStep.options && Array.isArray(currentStep.options)) {
+                currentStep.options.forEach(option => {
+                    const li = document.createElement('li');
+                    li.textContent = option;
+                    // Clicking an option will fetch *new* expansions based on this option text
+                    li.addEventListener('click', () => handlePromptSelection(option));
+                    optionsList.appendChild(li);
+                });
+            } else {
+                 console.warn("No options found for the current step:", currentStep);
+                 // Optionally display a message indicating no options available
+            }
+
             customFollowupInput.value = ''; // Clear input
-            // Ensure custom follow-up input is visible when rendering options state
-            optionsSection.querySelector('.custom-prompt').style.display = 'flex';
+            optionsSection.querySelector('.custom-prompt').style.display = 'flex'; // Ensure input is visible
 
             // Update controls
-            backBtn.disabled = sessionState.history.length <= 1; // Disable back if only one prompt in history
-            const shouldShowComplete = sessionState.cycleCount >= MIN_CYCLES_FOR_COMPLETE;
+            // Back button is enabled as long as we are not on the initial screen
+            backBtn.disabled = sessionState.currentStepIndex < 0;
+
+            const cycleCount = sessionState.currentStepIndex + 1; // Cycle count based on index
+            const shouldShowComplete = cycleCount >= MIN_CYCLES_FOR_COMPLETE;
             completeBtn.style.display = shouldShowComplete ? 'inline-block' : 'none';
             completeBtn.disabled = !shouldShowComplete;
-            
-            // Ensure cursor style is correct
-            if (shouldShowComplete) {
-                completeBtn.style.cursor = 'pointer';
-            }
+            completeBtn.style.cursor = shouldShowComplete ? 'pointer' : 'default'; // Use default cursor when disabled
         }
+         // Ensure loading indicator is hidden after render completes, unless still loading
+         // Note: hideLoading() is called in finally blocks of async functions,
+         // but this is a safeguard if render is called directly elsewhere.
+         if (loadingIndicator.style.display === 'block') {
+             // Check if an async operation is actually in progress? Tricky.
+             // Assume if render is called, loading should usually hide unless an error prevented it.
+             // Let the finally blocks handle hiding.
+         }
     }
 
      function renderFinalDream(summary) {
@@ -265,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Immediately hide irrelevant choices and show loading indicator
         hideError(); // Ensure any previous errors are hidden
 
-        if (sessionState.history.length === 0) {
+        if (sessionState.currentStepIndex === -1) {
             // Initial prompt selection
             const listItems = initialPromptList.querySelectorAll('li');
             listItems.forEach(item => {
@@ -337,10 +444,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const text = customFollowupInput.value.trim();
         if (text) {
              hideError();
+
+             // --- Modification Start ---
+             // Add the custom text to the *current* step's options before proceeding
+             if (sessionState.currentStepIndex >= 0) {
+                 const currentStep = sessionState.steps[sessionState.currentStepIndex];
+                 if (currentStep && currentStep.options && !currentStep.options.includes(text)) {
+                     currentStep.options.push(text);
+                     saveState(); // Save the updated options list for the current step
+                 }
+             }
+             // --- Modification End ---
+
              // Display the submitted text visually
             displaySubmittedItem(text, optionsList, optionsSection.querySelector('.custom-prompt'));
             showLoading(); // Show loading indicator
-            // Treat custom followup like selecting an option
+            // Treat custom followup like selecting an option - fetches options for the *next* step
             fetchExpansions(text);
         }
     }
@@ -353,49 +472,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     backBtn.addEventListener('click', () => {
-        if (sessionState.history.length > 1) {
-            // This implementation simply removes the last step.
-            // A more complex implementation could allow choosing a different previous option.
-            // For now, it just goes back to the state *before* the last prompt was chosen.
-            // We need to re-fetch the options for the *new* last prompt.
-
-            showLoading(); // Show loading as we need to re-fetch previous options
-            hideError();
-
-            // Remove the last prompt from history
-            sessionState.history.pop();
-            sessionState.cycleCount--; // Decrement cycle count
-
-            if (sessionState.history.length === 0) {
-                // If going back results in empty history, reset completely
-                resetState();
-                saveState();
-                hideLoading();
-                render();
-            } else {
-                 // We need the options that *led* to the current last prompt.
-                 // This simple back implementation doesn't store previous options sets.
-                 // To truly 'go back' and see the options again, we'd need to fetch them.
-                 // Let's re-fetch based on the *new* history tail.
-                 const previousHistory = sessionState.history.slice(); // Copy history *before* potential prompt add
-                 sessionState.history.pop(); // Temporarily remove the last one again to fetch its predecessors's options
-                 sessionState.cycleCount--; //Decrement again
-
-                 fetchExpansions(previousHistory[previousHistory.length-1]); // Re-expand from the step *before* the one we returned to. This will re-add the last item back.
-
-                // // Simple rollback without re-fetching (loses options context):
-                // sessionState.currentOptions = []; // Clear options as they belong to the removed step
-                // saveState();
-                // render();
-                // hideLoading(); // Hide loading if not re-fetching
-            }
+        // Only allow going back if not on the initial screen (-1)
+        if (sessionState.currentStepIndex >= 0) {
+            hideError(); // Clear errors when navigating
+            sessionState.currentStepIndex--; // Decrement index to go back
+            sessionState.isComplete = false; // Going back means it's not complete
+            sessionState.finalSummary = null; // Clear summary when going back
+            saveState(); // Save the new index
+            render(); // Re-render the previous state (no API call needed)
         }
+        // If currentStepIndex was 0, it becomes -1, render() shows initial screen.
+        // If currentStepIndex was already -1, nothing happens.
     });
 
     completeBtn.addEventListener('click', () => {
-        // Hide options immediately when completing
+        // Hide options immediately and show loading
         optionsSection.style.display = 'none';
-        showLoading("Waking up...");
+        // Get a random non-repeating waking message
+        const newWakingMessage = getRandomMessage(WAKING_MESSAGES, lastWakingMessage);
+        lastWakingMessage = newWakingMessage; // Update the last shown waking message
+        showLoading(newWakingMessage); // Pass the chosen waking message to showLoading
         fetchCompletion();
     });
 
@@ -415,12 +511,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Utility Functions ---
-    const loadingIndicatorText = loadingIndicator.querySelector('p'); // Get the paragraph inside
-    const defaultLoadingMessage = "Dreaming up possibilities...";
+    const loadingIndicatorText = loadingIndicator.querySelector('p');
 
-    function showLoading(message = defaultLoadingMessage) {
+    function showLoading(message = null) {
         errorMessage.style.display = 'none';
-        loadingIndicatorText.textContent = message; // Set the message
+        if (message) {
+            // If a specific message is provided (like for waking), use it directly
+            loadingIndicatorText.textContent = message;
+        } else {
+            // Otherwise, get a random non-repeating loading message
+            const newMessage = getRandomMessage(LOADING_MESSAGES, lastLoadingMessage);
+            lastLoadingMessage = newMessage; // Update the last shown message
+            loadingIndicatorText.textContent = newMessage;
+        }
         loadingIndicator.style.display = 'block';
         // Disable buttons while loading
         submitCustomPromptBtn.disabled = true;
@@ -436,7 +539,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function hideLoading() {
         loadingIndicator.style.display = 'none';
-        loadingIndicatorText.textContent = defaultLoadingMessage; // Reset message
         // Re-enable buttons - render() will handle correct disabled state based on cycle count etc.
         submitCustomPromptBtn.disabled = false;
         submitCustomFollowupBtn.disabled = false;
@@ -471,15 +573,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initialization ---
     loadState(); // Load state from localStorage
-    if (sessionState.isComplete) {
-        // If loaded state is already complete, show the final screen
-        // but we don't have the summary text. Inform user or reset.
-        console.warn("Loaded session is marked complete, but summary text is not persisted. Resetting.");
-        resetState(); // Reset to avoid confusion
-        saveState();
-        render(); // Render the initial state
+
+    // Initial render based on loaded state
+    if (sessionState.isComplete && sessionState.finalSummary) {
+        // If loaded state is complete *and* has summary, show final screen
+        renderFinalDream(sessionState.finalSummary);
     } else {
-       render(); // Render based on loaded or initial state
+         // If not complete, or summary missing, reset completion flag and render normally
+         if(sessionState.isComplete && !sessionState.finalSummary) {
+             sessionState.isComplete = false; // Correct state if summary is missing
+             saveState(); // Save corrected state
+         }
+        // Render the appropriate state (initial or intermediate)
+       render();
     }
 
     // Handle page refresh - state is loaded via loadState() on DOMContentLoaded

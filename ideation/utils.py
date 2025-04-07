@@ -79,7 +79,6 @@ def get_llm_response(prompt_history, task_type='expand'):
              raise ValueError("LLM response did not contain 'choices'.")
 
         generated_text = response_data['choices'][0]['message']['content'].strip()
-        print("generated_text", generated_text)
         # --- End OpenAI specific parsing ---
 
         if task_type == 'expand':

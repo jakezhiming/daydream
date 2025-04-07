@@ -12,13 +12,13 @@
         <h1>Daydream</h1>
 
         <div id="current-prompt-section" class="prompt-section" style="display: none;">
-            <h2>Current Thought</h2>
+            <h3>Current Thought</h3>
+            <div id="prompt-history-display" class="prompt-history-display"></div>
             <div id="current-prompt-text" class="current-prompt"></div>
-            <div id="prompt-history-display" style="font-size: 0.8em; color: #666;"></div>
         </div>
 
         <div id="initial-prompts-section" class="prompt-section">
-            <h2>Start your Daydream...</h2>
+            <h3>Start your Daydream...</h3>
             <ul id="initial-prompt-list" class="prompt-list">
                 </ul>
             <div class="custom-prompt">
@@ -28,18 +28,18 @@
         </div>
 
         <div id="options-section" class="options-section" style="display: none;">
-            <h2>Where does it go next?</h2>
+            <h3>Where Does it Go Next?</h3>
             <ul id="options-list" class="options-list">
                 </ul>
              <div class="custom-prompt">
-                <input type="text" id="custom-followup-input" placeholder="Or add your own continuation...">
+                <input type="text" id="custom-followup-input" placeholder="Or add your own thoughts...">
                 <button id="submit-custom-followup">Continue</button>
             </div>
         </div>
 
         <div id="loading-indicator" class="loading-indicator">
             <div class="spinner"></div>
-            <p>Dreaming up possibilities...</p>
+            <p></p>
         </div>
 
         <div id="error-message" class="error-message"></div>
@@ -50,7 +50,7 @@
         </div>
 
          <div id="final-dream-section" class="final-dream-section" style="display: none;">
-            <h2>Your Completed Dream</h2>
+            <h3>Your Completed Dream</h3>
             <div id="final-dream-text" class="final-dream"></div>
              <button id="final-reset-btn">Start a New Dream</button>
         </div>

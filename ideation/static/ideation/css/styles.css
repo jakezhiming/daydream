@@ -16,10 +16,19 @@ body {
     border-radius: 12px; /* Softer corners */
     box-shadow: 0 5px 20px rgba(0, 50, 100, 0.08); /* Softer shadow */
 }
-h1, h2 {
-    text-align: center;
+h1, h3 {
     color: #2a3b4c; /* Darker, slightly blue heading color */
     margin-bottom: 30px; /* More space below headings */
+}
+
+h1 {
+    text-align: center;
+}
+
+h3 {
+    font-size: 1.3em;
+    text-align: left;
+    padding-left: 10px;
 }
 .prompt-section, .options-section, .controls-section, .final-dream-section {
     margin-bottom: 35px; /* Increased spacing */
@@ -63,12 +72,11 @@ h1, h2 {
 #custom-prompt-input,
 #custom-followup-input {
     flex-grow: 1;
-    padding: 12px 15px; /* Adjust padding */
-    margin-right: 10px; /* Increase spacing */
+    padding: 12px 15px;
+    margin-right: 10px; 
     border: 1px solid #ced4da;
-    border-radius: 6px; /* Slightly softer corners */
-    /* height: 15px; Removed fixed height */
-    font-size: 1em; /* Adjust font size */
+    border-radius: 6px; 
+    font-size: 0.85em; 
     transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Add transition */
 }
 
@@ -84,7 +92,7 @@ h1, h2 {
 #submit-custom-prompt,
 #submit-custom-followup {
     flex-shrink: 0;
-    padding: 12px 18px; /* Adjust padding */
+    padding: 12px 18px;
     background-color: #007bff;
     color: white;
     border: none;
@@ -140,6 +148,7 @@ h1, h2 {
     font-size: 0.85em;
     color: #6c757d;
     margin-bottom: 15px;
+    margin-left: 10px;
     word-wrap: break-word; /* Prevent overflow */
 }
 
@@ -150,7 +159,7 @@ h1, h2 {
     font-style: normal; /* Remove italic */
     color: #555;
     display: none; /* Initially hidden */
-    font-size: 1.1em;
+    font-size: 0.85em;
 }
 
 .loading-indicator p {
