@@ -135,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchCompletion() {
-        showLoading();
         hideError();
 
         try {
@@ -166,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error fetching completion:', error);
             showError(`Failed to complete dream: ${error.message}. You can try again or go back.`);
         } finally {
-            hideLoading();
+            hideLoading(); // Ensure loading is hidden regardless of success/failure
             // If fetchCompletion succeeded, renderFinalDream was called.
             // If it failed, we need render() to restore the previous state.
             if (!sessionState.isComplete) {
@@ -208,6 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 initialPromptList.appendChild(li);
             });
             customPromptInput.value = ''; // Clear input
+            // Ensure custom prompt input is visible when rendering initial state
+            initialPromptsSection.querySelector('.custom-prompt').style.display = 'flex';
 
         } else {
             // Active Ideation State
@@ -233,6 +234,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 optionsList.appendChild(li);
             });
             customFollowupInput.value = ''; // Clear input
+            // Ensure custom follow-up input is visible when rendering options state
+            optionsSection.querySelector('.custom-prompt').style.display = 'flex';
 
             // Update controls
             backBtn.disabled = sessionState.history.length <= 1; // Disable back if only one prompt in history
@@ -259,35 +262,95 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Handlers ---
     function handlePromptSelection(promptText) {
+        // Immediately hide irrelevant choices and show loading indicator
+        hideError(); // Ensure any previous errors are hidden
+
+        if (sessionState.history.length === 0) {
+            // Initial prompt selection
+            const listItems = initialPromptList.querySelectorAll('li');
+            listItems.forEach(item => {
+                if (item.textContent !== promptText) {
+                    item.style.display = 'none';
+                }
+            });
+            initialPromptsSection.querySelector('.custom-prompt').style.display = 'none';
+        } else {
+            // Follow-up option selection
+            const listItems = optionsList.querySelectorAll('li');
+            listItems.forEach(item => {
+                if (item.textContent !== promptText) {
+                    item.style.display = 'none';
+                }
+            });
+            optionsSection.querySelector('.custom-prompt').style.display = 'none';
+        }
+
+        showLoading(); // Show loading indicator and disable controls
+
+        // Clear custom inputs (in case one was used just before clicking a list item)
+        customPromptInput.value = '';
+        customFollowupInput.value = '';
+
+        // Fetch expansions asynchronously
         fetchExpansions(promptText);
+        // Note: render() will be called within fetchExpansions's finally block
+        // render() will rebuild the lists, automatically removing the hidden styles.
     }
 
-    submitCustomPromptBtn.addEventListener('click', () => {
+    // Helper function to display the submitted text like a selected item
+    function displaySubmittedItem(text, listElement, inputContainerElement) {
+        // Hide existing list items
+        const listItems = listElement.querySelectorAll('li');
+        listItems.forEach(item => item.style.display = 'none');
+
+        // Hide the custom input container
+        if (inputContainerElement) {
+            inputContainerElement.style.display = 'none';
+        }
+
+        // Create and display the submitted item
+        const submittedLi = document.createElement('li');
+        submittedLi.textContent = text;
+        submittedLi.classList.add('submitted-item'); // Apply the new style
+        listElement.appendChild(submittedLi);
+    }
+
+    function handleCustomPromptSubmit() {
         const text = customPromptInput.value.trim();
         if (text) {
-            fetchExpansions(text);
+            hideError();
+            // Display the submitted text visually
+            displaySubmittedItem(text, initialPromptList, initialPromptsSection.querySelector('.custom-prompt'));
+            showLoading(); // Show loading indicator
+            fetchExpansions(text); // Fetch expansions
         }
-    });
+    }
+
+    submitCustomPromptBtn.addEventListener('click', handleCustomPromptSubmit);
      customPromptInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            submitCustomPromptBtn.click();
+            handleCustomPromptSubmit();
         }
     });
 
-
-    submitCustomFollowupBtn.addEventListener('click', () => {
+    function handleCustomFollowupSubmit() {
         const text = customFollowupInput.value.trim();
         if (text) {
+             hideError();
+             // Display the submitted text visually
+            displaySubmittedItem(text, optionsList, optionsSection.querySelector('.custom-prompt'));
+            showLoading(); // Show loading indicator
             // Treat custom followup like selecting an option
             fetchExpansions(text);
         }
-    });
+    }
+
+    submitCustomFollowupBtn.addEventListener('click', handleCustomFollowupSubmit);
     customFollowupInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-           submitCustomFollowupBtn.click();
+           handleCustomFollowupSubmit();
         }
     });
-
 
     backBtn.addEventListener('click', () => {
         if (sessionState.history.length > 1) {
@@ -330,6 +393,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     completeBtn.addEventListener('click', () => {
+        // Hide options immediately when completing
+        optionsSection.style.display = 'none';
+        showLoading("Waking up...");
         fetchCompletion();
     });
 
@@ -349,35 +415,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Utility Functions ---
-    function showLoading() {
+    const loadingIndicatorText = loadingIndicator.querySelector('p'); // Get the paragraph inside
+    const defaultLoadingMessage = "Dreaming up possibilities...";
+
+    function showLoading(message = defaultLoadingMessage) {
+        errorMessage.style.display = 'none';
+        loadingIndicatorText.textContent = message; // Set the message
         loadingIndicator.style.display = 'block';
         // Disable buttons while loading
         submitCustomPromptBtn.disabled = true;
         submitCustomFollowupBtn.disabled = true;
-        optionsList.style.pointerEvents = 'none'; // Prevent clicking options
-        initialPromptList.style.pointerEvents = 'none';
-        backBtn.disabled = true;
-        completeBtn.disabled = true;
-        resetBtn.disabled = true;
+        if(completeBtn) completeBtn.disabled = true;
+        if(backBtn) backBtn.disabled = true;
+        if(resetBtn) resetBtn.disabled = true;
+
+        // Make list items unclickable
+        const listItems = document.querySelectorAll('.prompt-list li, .options-list li');
+        listItems.forEach(item => item.style.pointerEvents = 'none');
     }
 
     function hideLoading() {
         loadingIndicator.style.display = 'none';
-        // Re-enable buttons
+        loadingIndicatorText.textContent = defaultLoadingMessage; // Reset message
+        // Re-enable buttons - render() will handle correct disabled state based on cycle count etc.
         submitCustomPromptBtn.disabled = false;
         submitCustomFollowupBtn.disabled = false;
-        optionsList.style.pointerEvents = 'auto';
-        initialPromptList.style.pointerEvents = 'auto';
-        backBtn.disabled = sessionState.history.length <= 1;
-        resetBtn.disabled = false;
-        
-        // Properly handle complete button state
-        if (sessionState.cycleCount >= MIN_CYCLES_FOR_COMPLETE) {
-            completeBtn.style.display = 'inline-block';
-            completeBtn.disabled = false;
-        } else {
-            completeBtn.style.display = 'none';
-        }
+        // Explicitly re-enable reset button, as render() doesn't manage its disabled state
+        if(resetBtn) resetBtn.disabled = false;
+
+        // render() will handle enabling/disabling back/complete correctly
+        // if(completeBtn) completeBtn.disabled = sessionState.cycleCount < MIN_CYCLES_FOR_COMPLETE;
+        // if(backBtn) backBtn.disabled = sessionState.history.length <= 1;
+
+         // Make list items clickable again - render() will recreate them anyway, but good practice
+         const listItems = document.querySelectorAll('.prompt-list li, .options-list li');
+         listItems.forEach(item => item.style.pointerEvents = 'auto');
     }
 
     function showError(message) {
