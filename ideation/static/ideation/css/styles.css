@@ -1,46 +1,207 @@
-body { font-family: sans-serif; padding: 20px; background-color: #f0f8ff; }
-.container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-h1, h2 { text-align: center; color: #333; }
-.prompt-section, .options-section, .controls-section, .final-dream-section { margin-bottom: 25px; }
-.prompt-list, .options-list { list-style: none; padding: 0; }
-.prompt-list li, .options-list li { background: #e9f5ff; margin: 8px 0; padding: 12px; border-radius: 4px; cursor: pointer; transition: background-color 0.2s ease; border: 1px solid #cce7ff; }
-.prompt-list li:hover, .options-list li:hover { background-color: #d0eaff; }
-.current-prompt { background-color: #fff3cd; padding: 15px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #ffeeba; }
+/* Add Google Font import at the top */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif; /* Use new font */
+    padding: 30px; /* Increase padding */
+    background-color: #f4f7f9; /* Slightly adjusted background */
+    color: #333; /* Default text color */
+    line-height: 1.6; /* Improve readability */
+}
+.container {
+    max-width: 850px; /* Slightly wider */
+    margin: 40px auto; /* More top/bottom margin */
+    background: white;
+    padding: 40px; /* More padding */
+    border-radius: 12px; /* Softer corners */
+    box-shadow: 0 5px 20px rgba(0, 50, 100, 0.08); /* Softer shadow */
+}
+h1, h2 {
+    text-align: center;
+    color: #2a3b4c; /* Darker, slightly blue heading color */
+    margin-bottom: 30px; /* More space below headings */
+}
+.prompt-section, .options-section, .controls-section, .final-dream-section {
+    margin-bottom: 35px; /* Increased spacing */
+}
+.prompt-list, .options-list {
+    list-style: none;
+    padding: 0;
+}
+.prompt-list li, .options-list li {
+    background: #ffffff; /* White background */
+    margin: 10px 0; /* More space between items */
+    padding: 15px 20px; /* More padding */
+    border-radius: 8px; /* Softer corners */
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; /* Added transitions */
+    border: 1px solid #e0e8f0; /* Softer border */
+    font-weight: 500; /* Slightly bolder */
+}
+.prompt-list li:hover, .options-list li:hover {
+    background-color: #f0f8ff; /* Light blue hover */
+    border-color: #a0cfff;
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 4px 8px rgba(0, 80, 150, 0.06); /* Subtle shadow on hover */
+}
+.current-prompt {
+    background-color: #e6f4ff; /* Lighter blue background */
+    padding: 20px; /* More padding */
+    border-radius: 8px; /* Softer corners */
+    margin-bottom: 25px; /* More space below */
+    border: 1px solid #b3d9ff; /* Matching border */
+    color: #1a3b5f; /* Darker text */
+}
 
 /* Style the container for custom prompts */
 .custom-prompt {
-    display: flex;        /* Use flexbox for layout */
-    align-items: center;  /* Vertically align items */
+    display: flex;
+    align-items: center;
+    margin-top: 20px; /* Add some space above */
 }
 
 #custom-prompt-input,
-#custom-followup-input { 
-    /* width: calc(100% - 100px); Removed width, flexbox handles it */
-    flex-grow: 1;         /* Allow input to grow and fill space */
-    padding: 10px; 
-    margin-right: 5px; 
-    border: 1px solid #ccc; 
-    border-radius: 4px; 
-    height: 15px;
-    font-size: 1.1em; 
+#custom-followup-input {
+    flex-grow: 1;
+    padding: 12px 15px; /* Adjust padding */
+    margin-right: 10px; /* Increase spacing */
+    border: 1px solid #ced4da;
+    border-radius: 6px; /* Slightly softer corners */
+    /* height: 15px; Removed fixed height */
+    font-size: 1em; /* Adjust font size */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Add transition */
 }
 
-.custom-prompt button { 
-    flex-shrink: 0;       /* Prevent button from shrinking */
-    padding: 10px 15px; 
-    background-color: #007bff; 
-    color: white; 
-    border: none; 
-    border-radius: 4px; 
-    cursor: pointer; 
+#custom-prompt-input:focus,
+#custom-followup-input:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); /* Focus indicator */
 }
 
-.custom-prompt button:hover { background-color: #0056b3; }
-.controls-section button { padding: 10px 20px; margin-right: 10px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; }
-.controls-section button:hover { background-color: #5a6268; }
+
+.custom-prompt button, /* Apply base styles to both custom input buttons */
+#submit-custom-prompt,
+#submit-custom-followup {
+    flex-shrink: 0;
+    padding: 12px 18px; /* Adjust padding */
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px; /* Slightly softer corners */
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease; /* Add transition */
+}
+
+.custom-prompt button:hover,
+#submit-custom-prompt:hover,
+#submit-custom-followup:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px); /* Slight lift on hover */
+}
+
+.controls-section button {
+    padding: 12px 25px; /* More padding */
+    margin-right: 12px;
+    color: white;
+    border: none;
+    border-radius: 6px; /* Slightly softer corners */
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease; /* Add transitions */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow */
+}
+
+.controls-section button:hover:not(:disabled) { /* Add :not(:disabled) */
+    transform: translateY(-1px); /* Lift effect */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* Enhanced shadow on hover */
+}
+
+.controls-section button#back-btn { background-color: #6c757d; }
+.controls-section button#back-btn:hover:not(:disabled) { background-color: #5a6268; }
+
 .controls-section button#complete-btn { background-color: #28a745; }
-.controls-section button#complete-btn:hover { background-color: #218838; }
-.controls-section button:disabled { background-color: #cccccc; cursor: not-allowed; }
-.loading-indicator { text-align: center; padding: 20px; font-style: italic; color: #555; display: none; /* Initially hidden */ }
-.error-message { color: red; text-align: center; margin-top: 10px; display: none; /* Initially hidden */ }
-.final-dream { background: #e2e3e5; padding: 20px; border-radius: 5px; margin-top: 20px; white-space: pre-wrap; /* Preserve formatting */ }
+.controls-section button#complete-btn:hover:not(:disabled) { background-color: #218838; }
+
+/* Style for the reset button during ideation */
+.controls-section button#reset-btn { background-color: #dc3545; }
+.controls-section button#reset-btn:hover:not(:disabled) { background-color: #c82333; }
+
+.controls-section button:disabled {
+    background-color: #e9ecef; /* Lighter disabled background */
+    color: #6c757d; /* Muted text */
+    cursor: not-allowed;
+    box-shadow: none; /* No shadow when disabled */
+    transform: none; /* No transform when disabled */
+}
+
+#prompt-history-display { /* Style the breadcrumbs */
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-bottom: 15px;
+    word-wrap: break-word; /* Prevent overflow */
+}
+
+
+.loading-indicator {
+    text-align: center;
+    padding: 30px; /* More padding */
+    font-style: normal; /* Remove italic */
+    color: #555;
+    display: none; /* Initially hidden */
+    font-size: 1.1em;
+}
+
+.error-message {
+    color: #dc3545; /* Use Bootstrap danger color */
+    background-color: #f8d7da; /* Light red background */
+    border: 1px solid #f5c6cb; /* Red border */
+    padding: 15px; /* More padding */
+    border-radius: 6px; /* Softer corners */
+    text-align: center;
+    margin-top: 20px;
+    display: none; /* Initially hidden */
+}
+
+.final-dream-section { /* Add specific styling for the final section container */
+    margin-top: 40px;
+    text-align: center; /* Center the button */
+}
+
+/* Style for the final 'Start new dream' button - same red as reset */
+#final-reset-btn {
+    /* Base button styles (similar to .controls-section button) */
+    padding: 12px 25px;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* Red color */
+    background-color: #dc3545;
+    /* Layout within final-dream-section */
+    margin-top: 25px;
+    display: inline-block;
+}
+
+#final-reset-btn:hover:not(:disabled) {
+    /* Base hover styles */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    /* Red hover color */
+    background-color: #c82333;
+}
+
+.final-dream {
+    background: #eef1f4; /* Slightly different background */
+    padding: 30px; /* More padding */
+    border-radius: 8px; /* Softer corners */
+    margin-top: 15px; /* Space from heading/controls */
+    white-space: pre-wrap; /* Preserve formatting */
+    line-height: 1.7; /* Slightly more line height for readability */
+    border: 1px solid #d6dde3; /* Subtle border */
+    color: #333;
+}
