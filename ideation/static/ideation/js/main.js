@@ -1,49 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Configuration ---
-    const API_EXPAND_URL = '/api/expand/';
-    const API_COMPLETE_URL = '/api/complete/';
-    const MIN_CYCLES_FOR_COMPLETE = 3;
-    const DEFAULT_PROMPTS = [
-        "I want to invent...",
-        "Write me a story about...",
-        "I'm thinking of a world where...",
-        "What if technology could...",
-        "Explore the concept of...",
-        "Design a solution for...",
-        "Imagine a future where...",
-        "Create a character who...",
-        "In an alternate reality...",
-        "Transform everyday life by...",
-        "Revolutionize the way we...",
-        "Build a community around...",
-        "Reinvent the concept of...",
-        "Challenge the assumption that..."
-    ];
-    const LOADING_MESSAGES = [
-        "Dreaming up possibilities...",
-        "Exploring new ideas...",
-        "Wandering through imagination...",
-        "Chasing creative thoughts...",
-        "Weaving dreams together...",
-        "Gathering inspiration...",
-        "Connecting the dots...",
-        "Following the daydream...",
-        "Brewing up ideas...",
-        "Letting imagination flow..."
-    ];
-    const WAKING_MESSAGES = [
-        "Waking up...",
-        "Coming back to reality...",
-        "Gathering the dream pieces...",
-        "Crystallizing thoughts...",
-        "Bringing the dream to life...",
-        "Emerging from imagination...",
-        "Capturing the essence...",
-        "Drawing conclusions...",
-        "Wrapping up the journey...",
-        "Making sense of it all..."
-    ];
-    const STORAGE_KEY = 'daydreamSession';
+    // Configuration constants are in config.js and accessed via DaydreamConfig object
 
     // Track last shown messages to avoid repeats
     let lastLoadingMessage = '';
@@ -98,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveState() {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionState));
+            localStorage.setItem(DaydreamConfig.STORAGE_KEY, JSON.stringify(sessionState));
         } catch (e) {
             console.error("Failed to save state to localStorage:", e);
             // Optionally inform the user
@@ -107,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadState() {
         try {
-            const savedState = localStorage.getItem(STORAGE_KEY);
+            const savedState = localStorage.getItem(DaydreamConfig.STORAGE_KEY);
             if (savedState) {
                 sessionState = JSON.parse(savedState);
                 // Basic validation and default values for the new structure
@@ -151,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isComplete: false,
             finalSummary: null
         };
-        localStorage.removeItem(STORAGE_KEY); // Clear storage explicitly
+        localStorage.removeItem(DaydreamConfig.STORAGE_KEY); // Clear storage explicitly
     }
 
     // --- API Interaction ---
@@ -167,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // No state change *before* the API call
 
         try {
-            const response = await fetch(API_EXPAND_URL, {
+            const response = await fetch(DaydreamConfig.API_EXPAND_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -219,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const historyForAPI = sessionState.steps.slice(0, sessionState.currentStepIndex + 1).map(s => s.prompt);
 
         try {
-            const response = await fetch(API_COMPLETE_URL, {
+            const response = await fetch(DaydreamConfig.API_COMPLETE_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -279,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // finalDreamSection handled above
 
             // Randomly select 5 prompts from the DEFAULT_PROMPTS array
-            const shuffledPrompts = [...DEFAULT_PROMPTS].sort(() => Math.random() - 0.5);
+            const shuffledPrompts = [...DaydreamConfig.DEFAULT_PROMPTS].sort(() => Math.random() - 0.5);
             const selectedPrompts = shuffledPrompts.slice(0, 5);
 
             // Populate randomly selected prompts
@@ -316,7 +272,8 @@ document.addEventListener('DOMContentLoaded', () => {
             promptHistoryDisplay.textContent = sessionState.steps
                 .slice(0, sessionState.currentStepIndex) // History is steps *before* current
                 .map(s => s.prompt)
-                .join(' > ');
+                .join(' → ') + 
+                (sessionState.currentStepIndex > 0 ? ' → ' : '');
 
 
             // Display AI options from the *current* step's saved options
@@ -342,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
             backBtn.disabled = sessionState.currentStepIndex < 0;
 
             const cycleCount = sessionState.currentStepIndex + 1; // Cycle count based on index
-            const shouldShowComplete = cycleCount >= MIN_CYCLES_FOR_COMPLETE;
+            const shouldShowComplete = cycleCount >= DaydreamConfig.MIN_CYCLES_FOR_COMPLETE;
             completeBtn.style.display = shouldShowComplete ? 'inline-block' : 'none';
             completeBtn.disabled = !shouldShowComplete;
             completeBtn.style.cursor = shouldShowComplete ? 'pointer' : 'default'; // Use default cursor when disabled
@@ -489,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide options immediately and show loading
         optionsSection.style.display = 'none';
         // Get a random non-repeating waking message
-        const newWakingMessage = getRandomMessage(WAKING_MESSAGES, lastWakingMessage);
+        const newWakingMessage = getRandomMessage(DaydreamConfig.WAKING_MESSAGES, lastWakingMessage);
         lastWakingMessage = newWakingMessage; // Update the last shown waking message
         showLoading(newWakingMessage); // Pass the chosen waking message to showLoading
         fetchCompletion();
@@ -520,7 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingIndicatorText.textContent = message;
         } else {
             // Otherwise, get a random non-repeating loading message
-            const newMessage = getRandomMessage(LOADING_MESSAGES, lastLoadingMessage);
+            const newMessage = getRandomMessage(DaydreamConfig.LOADING_MESSAGES, lastLoadingMessage);
             lastLoadingMessage = newMessage; // Update the last shown message
             loadingIndicatorText.textContent = newMessage;
         }
@@ -542,12 +499,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Re-enable buttons - render() will handle correct disabled state based on cycle count etc.
         submitCustomPromptBtn.disabled = false;
         submitCustomFollowupBtn.disabled = false;
+        
         // Explicitly re-enable reset button, as render() doesn't manage its disabled state
         if(resetBtn) resetBtn.disabled = false;
-
-        // render() will handle enabling/disabling back/complete correctly
-        // if(completeBtn) completeBtn.disabled = sessionState.cycleCount < MIN_CYCLES_FOR_COMPLETE;
-        // if(backBtn) backBtn.disabled = sessionState.history.length <= 1;
 
          // Make list items clickable again - render() will recreate them anyway, but good practice
          const listItems = document.querySelectorAll('.prompt-list li, .options-list li');
@@ -587,10 +541,4 @@ document.addEventListener('DOMContentLoaded', () => {
         // Render the appropriate state (initial or intermediate)
        render();
     }
-
-    // Handle page refresh - state is loaded via loadState() on DOMContentLoaded
-    // No explicit handling needed here as localStorage persists across refreshes,
-    // and the desired behavior is to clear it, which `resetState` does.
-    // If you *strictly* wanted it cleared *only* on refresh, you might use sessionStorage
-    // or add a flag cleared by window.onbeforeunload, but localStorage fits the description.
 });

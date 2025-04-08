@@ -1,5 +1,4 @@
 Django==4.2.20
 requests==2.32.3
 python-dotenv==1.1.0
-gunicorn==23.0.0
 whitenoise==6.9.0

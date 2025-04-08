@@ -36,26 +36,33 @@ def get_llm_response(prompt_history, task_type='expand'):
 
     # Construct the prompt for the LLM
     prompt_history = [prompt.replace("...", "") for prompt in prompt_history]
-    full_prompt_text = " ".join(prompt_history)
+    full_prompt_text = "\n".join(prompt_history)
     system_message = ""
     user_message = ""
 
     if task_type == 'expand':
-        system_message = ("You are a creative assistant helping a user expand their thoughts. "
-                          "Given the preceding idea fragments, generate exactly 5 very short, simple, distinct and creative continuation prompts. "
-                          "Provide *only* the 5 prompts, each on a new line, without any numbering, bullets, or introductory text.")
-        user_message = f"Continue this thought sequence:\n---\n{full_prompt_text}\n---"
+
+        system_message = """You are a creative assistant helping a user expand their daydreaming thoughts. 
+Given the preceding daydream sequence, generate exactly 5 very short, simple, distinct and creative continuation prompts. 
+Make sure to have 1 prompt that provides a wildly different direction than the rest of the prompts.
+Provide *only* the 5 prompts, each on a new line, without any numbering, bullets, or introductory text."""
+        
+        user_message = f"Continue this daydream sequence:\n---\n{full_prompt_text}\n---"
 
     elif task_type == 'complete':
-        system_message = ("You are a summarization assistant. Synthesize the following sequence of thoughts "
-                          "into a single, coherent paragraph representing the final 'daydream' or concept. "
-                          "Capture the essence of the journey.")
+        
+        system_message = """You are a summarization assistant. Synthesize the following sequence of thoughts 
+into a single, coherent paragraph representing the final 'daydream' or concept. 
+Capture the essence of the journey."""
+
         user_message = f"Summarize this ideation sequence:\n---\n{full_prompt_text}\n---"
 
     else:
         return {'status': 'error', 'message': 'Invalid task type specified.'}
 
     # --- Payload specific to OpenAI ChatCompletion format ---
+    logger.info(f"System message: {system_message}")
+    logger.info(f"User message: {user_message}\n\n{'='*50}\n\n")
     payload = {
         "model": model,
         "messages": [
@@ -63,7 +70,7 @@ def get_llm_response(prompt_history, task_type='expand'):
             {"role": "user", "content": user_message}
         ],
         "max_tokens": 200,
-        "temperature": 0.8,
+        "temperature": 0.3,
     }
     # --- End OpenAI specific payload ---
 
