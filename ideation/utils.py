@@ -2,8 +2,17 @@ import requests
 import json
 from django.conf import settings
 import logging
+import base64
 
 logger = logging.getLogger(__name__)
+
+def get_proxy_token(_tokenParts):
+    try:
+        joined_token = ''.join(_tokenParts)
+        return base64.b64decode(joined_token).decode('utf-8')
+    except Exception as e:
+        logger.error("Failed to decode token: %s", e)
+        return None
 
 def get_llm_response(prompt_history, task_type='expand'):
     """
@@ -21,17 +30,27 @@ def get_llm_response(prompt_history, task_type='expand'):
               Expected format for error:
               {'status': 'error', 'message': 'Error description'}
     """
-    api_key = settings.LLM_API_KEY
-    api_endpoint = settings.LLM_API_ENDPOINT
-    model = settings.LLM_MODEL
+    api_endpoint = settings.PROXY_SERVER_ENDPOINT
+    model = settings.OPENAI_MODEL
+    _tokenParts = [
+    "MWEzZWI3OTkt",
+    "OWQxMC00ZjQ2",
+    "LWE1MGEtMzJj",
+    "YmRjYjVhZWQy"
+    ]
+    proxy_token = get_proxy_token(_tokenParts)
 
-    if not api_key:
-        logger.error("LLM_API_KEY not configured in settings.")
-        return {'status': 'error', 'message': 'LLM API key not configured.'}
+    if not api_endpoint:
+        logger.error("LLM_API_ENDPOINT not configured in settings.")
+        return {'status': 'error', 'message': 'LLM API endpoint not configured.'}
+
+    if not proxy_token:
+        logger.error("PROXY_TOKEN not configured in settings.")
+        return {'status': 'error', 'message': 'Proxy token not configured.'}
 
     headers = {
-        'Authorization': f'Bearer {api_key}',
         'Content-Type': 'application/json',
+        'X-API-Token': proxy_token
     }
 
     # Construct the prompt for the LLM

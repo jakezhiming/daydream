@@ -1,18 +1,18 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv # Add this import
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables from .env file
-load_dotenv(os.path.join(BASE_DIR, '.env')) # Add this line
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-default-secret-key-in-dev') # Use env var
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-default-secret-key-in-dev')
 
-DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True' # Use env var
+DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') # Use env var
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -23,8 +23,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ideation', # Add your app
-    # Add 'corsheaders' if needed for frontend dev server communication
-    # 'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -62,10 +60,9 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / "static"] # Optional: Project-level static files
 STATIC_ROOT = BASE_DIR / "staticfiles" # For collectstatic during deployment
 
-# --- LLM Configuration ---
-LLM_API_KEY = os.getenv('LLM_API_KEY')
-LLM_API_ENDPOINT = os.getenv('LLM_API_ENDPOINT', 'https://api.openai.com/v1/chat/completions') # Example for OpenAI
-LLM_MODEL = os.getenv('LLM_MODEL', 'gpt-4o-mini') # Example
+# Proxy server configuration
+PROXY_SERVER_ENDPOINT = os.getenv('PROXY_SERVER_ENDPOINT', 'http://localhost:10000/api/openai')
+OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')
 
 # Logging Configuration
 LOGGING = {
@@ -104,10 +101,3 @@ LOGGING = {
         },
     },
 }
-
-# --- CORS Configuration (if needed) ---
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000", # Example if frontend runs on a different port
-#     "http://127.0.0.1:3000",
-# ]
-# CORS_ALLOW_CREDENTIALS = True # If you need cookies/auth headers

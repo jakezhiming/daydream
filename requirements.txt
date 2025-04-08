@@ -2,3 +2,7 @@ Django==4.2.20
 requests==2.32.3
 python-dotenv==1.1.0
 whitenoise==6.9.0
+quart==0.20.0
+quart-cors==0.8.0
+httpx==0.28.1
+hypercorn==0.17.3
