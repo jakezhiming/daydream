@@ -17,6 +17,14 @@ Daydream is an interactive web application designed for brainstorming and creati
     # Now edit .env with your settings (e.g., OpenAI API key, proxy token)
     ```
 
+3.  **Update the frontend configuration:**
+    Edit `static-site/js/config.js` to match your proxy server settings:
+    ```javascript
+    const config = {
+        proxyUrl: 'http://localhost:10000/api/openai', // Update this URL to your Render-hosted proxy server
+    };
+    ```
+
 ## Setting Up the Proxy Server
 
 The application uses a proxy server to handle API calls to OpenAI, which helps avoid CORS issues and adds an extra layer of security.
