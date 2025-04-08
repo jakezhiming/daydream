@@ -10,19 +10,7 @@ Daydream is an interactive web application designed for brainstorming and creati
     cd daydream
     ```
 
-2.  **Create a virtual environment (recommended):**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-    ```
-
-3.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *(You might need to create a `requirements.txt` file if you don't have one: `pip freeze > requirements.txt`)*
-
-4.  **Set up environment variables:**
+2.  **Set up environment variables:**
     Copy the example environment file and fill in your specific configurations:
     ```bash
     cp .env.example .env
@@ -48,29 +36,18 @@ The application uses a proxy server to handle API calls to OpenAI, which helps a
    ```
    The proxy server will run on port 10000 by default and create an endpoint at `/api/openai`.
 
-
-## Collecting Static Files
-
-For production deployments, or sometimes during development depending on your setup, you need to collect all static files (CSS, JavaScript, images) into a single directory.
-
-Run the following command:
-
-```bash
-python manage.py collectstatic --noinput
-```
-
-This command gathers static files from all your applications into the directory specified by `STATIC_ROOT` in your `settings.py`.
-
-## Running the Development Server
+## Running the Application
 
 1. **First, ensure the proxy server is running**
    ```bash
    python proxy_server.py
    ```
 
-2. **Start the Django development server:**
+2. **Serve the static site:**
+   You can use any static file server to serve the contents of the `static-site` directory. For example, using Python's built-in HTTP server:
    ```bash
-   python manage.py runserver
+   cd static-site
+   python -m http.server 8000
    ```
 
-The application will typically be available at `http://127.0.0.1:8000/`.
+The application will be available at `http://127.0.0.1:8000/`.

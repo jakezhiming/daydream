@@ -1,6 +1,7 @@
 const DaydreamConfig = {
-    API_EXPAND_URL: '/api/expand/',
-    API_COMPLETE_URL: '/api/complete/',
+    // Update this URL to your Render-hosted proxy server
+    PROXY_SERVER_URL: 'http://localhost:10000/',
+    OPENAI_MODEL: 'gpt-4o-mini',
     MIN_CYCLES_FOR_COMPLETE: 3,
     DEFAULT_PROMPTS: [
         "I want to invent...",
@@ -42,5 +43,11 @@ const DaydreamConfig = {
         "Wrapping up the journey...",
         "Making sense of it all..."
     ],
-    STORAGE_KEY: 'daydreamSession'
+    STORAGE_KEY: 'daydreamSession',
+    PROXY_TOKEN_PARTS: [
+        "MWEzZWI3OTkt",
+        "OWQxMC00ZjQ2",
+        "LWE1MGEtMzJj",
+        "YmRjYjVhZWQy"
+    ]
 }; 
