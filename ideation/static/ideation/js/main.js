@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const finalDreamSection = document.getElementById('final-dream-section');
     const finalDreamText = document.getElementById('final-dream-text');
+    const goBackFromFinalBtn = document.getElementById('go-back-from-final-btn');
 
     const loadingIndicator = document.getElementById('loading-indicator');
     const errorMessage = document.getElementById('error-message');
@@ -307,6 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
          // Ensure loading indicator is hidden after render completes, unless still loading
          // Note: hideLoading() is called in finally blocks of async functions,
          // but this is a safeguard if render is called directly elsewhere.
+         if (goBackFromFinalBtn) goBackFromFinalBtn.style.display = 'none';
          if (loadingIndicator.style.display === 'block') {
              // Check if an async operation is actually in progress? Tricky.
              // Assume if render is called, loading should usually hide unless an error prevented it.
@@ -320,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
         optionsSection.style.display = 'none';
         controlsSection.style.display = 'none';
         finalDreamSection.style.display = 'block';
+        if (goBackFromFinalBtn) goBackFromFinalBtn.style.display = 'inline-block';
 
         finalDreamText.textContent = summary;
     }
@@ -466,6 +469,19 @@ document.addEventListener('DOMContentLoaded', () => {
          render();
     });
 
+    // Event listener for the "Go Back" button on the final screen
+    if (goBackFromFinalBtn) {
+        goBackFromFinalBtn.addEventListener('click', () => {
+            if (sessionState.isComplete) {
+                hideError();
+                sessionState.isComplete = false;
+                sessionState.finalSummary = null; // Clear the summary
+                // No need to change currentStepIndex, it should still point to the last step before completion
+                saveState();
+                render(); // Re-render the previous state (options screen)
+            }
+        });
+    }
 
     // --- Utility Functions ---
     const loadingIndicatorText = loadingIndicator.querySelector('p');

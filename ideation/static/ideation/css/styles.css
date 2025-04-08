@@ -218,6 +218,32 @@ h3 {
     background-color: #c82333;
 }
 
+/* Style for the final 'Go Back' button - same grey as ideation back button */
+#go-back-from-final-btn {
+    /* Base button styles (copied from .controls-section button) */
+    padding: 12px 25px;
+    margin-right: 12px; /* Add margin like other control buttons */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* Grey color (from .controls-section button#back-btn) */
+    background-color: #6c757d;
+    /* Layout adjustment for inline display */
+    display: inline-block;
+}
+
+#go-back-from-final-btn:hover:not(:disabled) {
+    /* Base hover styles (from .controls-section button:hover:not(:disabled)) */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    /* Grey hover color (from .controls-section button#back-btn:hover:not(:disabled)) */
+    background-color: #5a6268;
+}
+
 .final-dream {
     background: #eef1f4; /* Slightly different background */
     padding: 30px; /* More padding */
