@@ -18,7 +18,7 @@ Daydream is an interactive web application designed for brainstorming and creati
     ```
 
 3.  **Update the frontend configuration:**
-    Edit `static-site/js/config.js` to match your proxy server settings:
+    Edit `docs/js/config.js` to match your proxy server settings:
     ```javascript
     const config = {
         proxyUrl: 'http://localhost:10000/api/openai', // Update this URL to your Render-hosted proxy server
@@ -52,9 +52,9 @@ The application uses a proxy server to handle API calls to OpenAI, which helps a
    ```
 
 2. **Serve the static site:**
-   You can use any static file server to serve the contents of the `static-site` directory. For example, using Python's built-in HTTP server:
+   You can use any static file server to serve the contents of the `docs` directory. For example, using Python's built-in HTTP server:
    ```bash
-   cd static-site
+   cd docs
    python -m http.server 8000
    ```
 
