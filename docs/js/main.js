@@ -398,6 +398,97 @@ document.addEventListener('DOMContentLoaded', () => {
         if (goBackFromFinalBtn) goBackFromFinalBtn.style.display = 'inline-block';
 
         finalDreamText.textContent = summary;
+        
+        // Setup share button functionality
+        const shareDreamBtn = document.getElementById('share-dream-btn');
+        if (shareDreamBtn) {
+            // Make sure the button is visible
+            shareDreamBtn.style.display = 'inline-block';
+            
+            // Remove any previous event listeners by cloning and replacing the button
+            const newShareBtn = shareDreamBtn.cloneNode(true);
+            shareDreamBtn.parentNode.replaceChild(newShareBtn, shareDreamBtn);
+            
+            // Add event listener to the new button
+            newShareBtn.addEventListener('click', () => {
+                if (summary) {
+                    // Copy the final dream text with attribution to clipboard
+                    const textToCopy = `${summary}
+- Created with Daydream`;
+                    
+                    // Try to use the clipboard API
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(textToCopy)
+                            .then(() => {
+                                // Visual feedback on successful copy
+                                newShareBtn.classList.add('copied');
+                                newShareBtn.textContent = 'Copied!';
+                                
+                                // Reset button state after 2 seconds
+                                setTimeout(() => {
+                                    newShareBtn.classList.remove('copied');
+                                    newShareBtn.textContent = 'Share';
+                                }, 2000);
+                            })
+                            .catch(err => {
+                                console.error('Failed to copy with Clipboard API: ', err);
+                                // Fall back to the alternative method
+                                fallbackCopyTextToClipboard(textToCopy, newShareBtn);
+                            });
+                    } else {
+                        // Fallback for browsers without clipboard API
+                        fallbackCopyTextToClipboard(textToCopy, newShareBtn);
+                    }
+                }
+            });
+        }
+    }
+    
+    // Fallback function for copying text to clipboard using textarea
+    function fallbackCopyTextToClipboard(text, buttonElement) {
+        try {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            
+            // Make the textarea out of viewport
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            
+            // Save the current focus
+            const focusedElement = document.activeElement;
+            
+            // Focus and select the text
+            textArea.focus();
+            textArea.select();
+            
+            // Copy text
+            const successful = document.execCommand('copy');
+            
+            // Remove the textarea
+            document.body.removeChild(textArea);
+            
+            // Restore focus
+            if (focusedElement) focusedElement.focus();
+            
+            // Visual feedback
+            if (successful) {
+                buttonElement.classList.add('copied');
+                buttonElement.textContent = 'Copied!';
+                
+                // Reset button state after 2 seconds
+                setTimeout(() => {
+                    buttonElement.classList.remove('copied');
+                    buttonElement.textContent = 'Share';
+                }, 2000);
+            } else {
+                showError('Failed to copy to clipboard. Please try again or copy manually.');
+            }
+        } catch (err) {
+            console.error('Fallback: Oops, unable to copy', err);
+            showError('Failed to copy to clipboard. Please try again or copy manually.');
+        }
     }
 
     // --- Event Handlers ---

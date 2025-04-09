@@ -317,6 +317,33 @@ h3 {
     text-decoration: underline;
 }
 
+/* Style the share button */
+#share-dream-btn {
+    padding: 12px 25px;
+    margin-right: 12px;
+    min-width: 100px;
+    text-align: center;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: #0077cc;
+    display: inline-block;
+}
+
+#share-dream-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    background-color: #005fa3;
+}
+
+#share-dream-btn.copied {
+    background-color: #28a745 !important;
+}
+
 /* Added for mobile responsiveness */
 @media (max-width: 600px) {
     body {
@@ -387,21 +414,27 @@ h3 {
 
     .final-dream-section .controls {
         display: flex;
-        flex-direction: column-reverse; 
+        flex-direction: column;
         align-items: stretch;
-        gap: 15px; 
-        margin-top: 20px; 
+        gap: 15px;
+        margin-top: 20px;
     }
 
     #go-back-from-final-btn,
+    #share-dream-btn,
     #final-reset-btn {
         width: 100%;
+        min-width: unset;
         margin-right: 0;
         padding: 14px;
     }
 
+    #final-reset-btn {
+        margin-top: 0;
+    }
+
     .final-dream {
-        padding: 10px;
+        padding: 15px;
         font-size: 0.85em;
     }
 
