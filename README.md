@@ -1,6 +1,19 @@
 # Daydream
 
-Daydream is an interactive web application designed for brainstorming and creative idea generation. Users start with an initial prompt, and the application leverages a Large Language Model (LLM) to iteratively expand upon the idea based on user choices, culminating in a final generated summary or "dream".
+Daydream is an interactive web application designed for brainstorming and creative idea generation. Users start with an initial prompt, and the application leverages AI to iteratively expand upon the idea based on user choices, culminating in a final generated summary or "dream".
+
+You can now use Daydream directly in your browser (web and mobile) -
+[https://jakezhiming.github.io/daydream/](https://jakezhiming.github.io/daydream/)
+
+## Application Overview
+
+Daydream creates an engaging creative thinking environment where ideas evolve organically:
+
+- **Interactive Exploration**: Start with a seed idea and watch it branch into multiple directions
+- **User-Guided Development**: Choose which pathways to explore at each step
+- **AI-Powered Creativity**: Utilizes OpenAI's GPT models to generate novel connections and ideas
+- **Visual Journey**: Clean, intuitive interface that focuses on the creative process
+- **Final Summary**: Produces a cohesive "dream" that captures the essence of your exploration
 
 ## Setup
 
@@ -59,3 +72,13 @@ The application uses a proxy server to handle API calls to OpenAI, which helps a
    ```
 
 The application will be available at `http://127.0.0.1:8000/`.
+
+## Author
+
+- GitHub: [https://github.com/jakezhiming](https://github.com/jakezhiming)
+- LinkedIn: [https://www.linkedin.com/in/jakezhiming/](https://www.linkedin.com/in/jakezhiming/)
+
+If you enjoy using Daydream, consider:
+- ⭐ Starring the repository on GitHub
+- 🐛 Reporting any bugs or issues
+- 🔄 Contributing to the project

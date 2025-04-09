@@ -1,24 +1,26 @@
-/* Add Google Font import at the top */
+/* Google Font import */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
 
 body {
-    font-family: 'Inter', sans-serif; /* Use new font */
-    padding: 30px; /* Increase padding */
-    background-color: #f4f7f9; /* Slightly adjusted background */
-    color: #333; /* Default text color */
-    line-height: 1.6; /* Improve readability */
+    font-family: 'Inter', sans-serif;
+    padding: 30px;
+    background-color: #f4f7f9;
+    color: #333;
+    line-height: 1.6;
 }
 .container {
-    max-width: 850px; /* Slightly wider */
-    margin: 40px auto; /* More top/bottom margin */
+    max-width: 850px;
+    margin: 40px auto;
     background: white;
-    padding: 40px; /* More padding */
-    border-radius: 12px; /* Softer corners */
-    box-shadow: 0 5px 20px rgba(0, 50, 100, 0.08); /* Softer shadow */
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 50, 100, 0.08);
 }
 h1, h3 {
-    color: #2a3b4c; /* Darker, slightly blue heading color */
-    margin-bottom: 30px; /* More space below headings */
+    font-family: 'Poppins', sans-serif;
+    color: #2a3b4c;
+    margin-bottom: 30px;
 }
 
 h1 {
@@ -30,43 +32,46 @@ h3 {
     text-align: left;
     padding-left: 10px;
 }
+
 .prompt-section, .options-section, .controls-section, .final-dream-section {
-    margin-bottom: 35px; /* Increased spacing */
+    margin-bottom: 35px;
 }
+
+/* Style the list of prompts and options */
 .prompt-list, .options-list {
     list-style: none;
     padding: 0;
 }
 .prompt-list li, .options-list li {
-    background: #ffffff; /* White background */
-    margin: 10px 0; /* More space between items */
-    padding: 15px 20px; /* More padding */
-    border-radius: 8px; /* Softer corners */
+    background: #ffffff;
+    margin: 10px 0;
+    padding: 15px 20px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; /* Added transitions */
-    border: 1px solid #e0e8f0; /* Softer border */
-    font-weight: 500; /* Slightly bolder */
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #e0e8f0;
+    font-weight: 500;
 }
 .prompt-list li:hover, .options-list li:hover {
-    background-color: #f0f8ff; /* Light blue hover */
+    background-color: #f0f8ff;
     border-color: #a0cfff;
-    transform: translateY(-2px); /* Slight lift effect */
-    box-shadow: 0 4px 8px rgba(0, 80, 150, 0.06); /* Subtle shadow on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 80, 150, 0.06);
 }
 .current-prompt {
-    background-color: #e6f4ff; /* Lighter blue background */
-    padding: 20px; /* More padding */
-    border-radius: 8px; /* Softer corners */
-    margin-bottom: 25px; /* More space below */
-    border: 1px solid #b3d9ff; /* Matching border */
-    color: #1a3b5f; /* Darker text */
+    background-color: #e6f4ff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 1px solid #b3d9ff;
+    color: #1a3b5f;
 }
 
 /* Style the container for custom prompts */
 .custom-prompt {
     display: flex;
     align-items: center;
-    margin-top: 20px; /* Add some space above */
+    margin-top: 20px;
 }
 
 #custom-prompt-input,
@@ -77,18 +82,18 @@ h3 {
     border: 1px solid #ced4da;
     border-radius: 6px; 
     font-size: 0.85em; 
-    transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Add transition */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 #custom-prompt-input:focus,
 #custom-followup-input:focus {
     outline: none;
     border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); /* Focus indicator */
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
 
 
-.custom-prompt button, /* Apply base styles to both custom input buttons */
+.custom-prompt button,
 #submit-custom-prompt,
 #submit-custom-followup {
     flex-shrink: 0;
@@ -96,34 +101,35 @@ h3 {
     background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 6px; /* Slightly softer corners */
+    border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
-    transition: background-color 0.2s ease, transform 0.1s ease; /* Add transition */
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .custom-prompt button:hover,
 #submit-custom-prompt:hover,
 #submit-custom-followup:hover {
     background-color: #0056b3;
-    transform: translateY(-1px); /* Slight lift on hover */
+    transform: translateY(-1px);
 }
 
+/* Style the buttons in the controls section */
 .controls-section button {
-    padding: 12px 25px; /* More padding */
+    padding: 12px 25px;
     margin-right: 12px;
     color: white;
     border: none;
-    border-radius: 6px; /* Slightly softer corners */
+    border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
-    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease; /* Add transitions */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow */
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.controls-section button:hover:not(:disabled) { /* Add :not(:disabled) */
-    transform: translateY(-1px); /* Lift effect */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* Enhanced shadow on hover */
+.controls-section button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .controls-section button#back-btn { background-color: #6c757d; }
@@ -132,38 +138,36 @@ h3 {
 .controls-section button#complete-btn { background-color: #28a745; }
 .controls-section button#complete-btn:hover:not(:disabled) { background-color: #218838; }
 
-/* Style for the reset button during ideation */
 .controls-section button#reset-btn { background-color: #dc3545; }
 .controls-section button#reset-btn:hover:not(:disabled) { background-color: #c82333; }
 
 .controls-section button:disabled {
-    background-color: #e9ecef; /* Lighter disabled background */
-    color: #6c757d; /* Muted text */
+    background-color: #e9ecef;
     cursor: not-allowed;
-    box-shadow: none; /* No shadow when disabled */
-    transform: none; /* No transform when disabled */
+    box-shadow: none;
+    transform: none;
 }
 
-#prompt-history-display { /* Style the breadcrumbs */
+/* Style the prompt history display */
+#prompt-history-display {
     font-size: 0.85em;
     color: #6c757d;
     margin-bottom: 15px;
     margin-left: 10px;
-    word-wrap: break-word; /* Prevent overflow */
+    word-wrap: break-word;
 }
 
-
+/* Style the loading indicator */
 .loading-indicator {
     text-align: center;
-    padding: 30px; /* More padding */
-    font-style: normal; /* Remove italic */
+    padding: 30px;
+    font-style: normal;
     color: #555;
-    display: none; /* Initially hidden */
+    display: none;
     font-size: 0.85em;
 }
 
 .loading-indicator p {
-    /* Add animation styles */
     animation: pulsate 1.5s infinite ease-in-out;
 }
 
@@ -176,25 +180,25 @@ h3 {
     }
 }
 
+/* Style the error message */
 .error-message {
-    color: #dc3545; /* Use Bootstrap danger color */
-    background-color: #f8d7da; /* Light red background */
-    border: 1px solid #f5c6cb; /* Red border */
-    padding: 15px; /* More padding */
-    border-radius: 6px; /* Softer corners */
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 15px;
+    border-radius: 6px;
     text-align: center;
     margin-top: 20px;
-    display: none; /* Initially hidden */
+    display: none;
 }
 
-.final-dream-section { /* Add specific styling for the final section container */
+/* Style the final reset button */
+.final-dream-section {
     margin-top: 40px;
-    text-align: center; /* Center the button */
+    text-align: center;
 }
 
-/* Style for the final 'Start new dream' button - same red as reset */
 #final-reset-btn {
-    /* Base button styles (similar to .controls-section button) */
     padding: 12px 25px;
     color: white;
     border: none;
@@ -203,26 +207,21 @@ h3 {
     font-weight: 500;
     transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    /* Red color */
     background-color: #dc3545;
-    /* Layout within final-dream-section */
     margin-top: 25px;
     display: inline-block;
 }
 
 #final-reset-btn:hover:not(:disabled) {
-    /* Base hover styles */
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    /* Red hover color */
     background-color: #c82333;
 }
 
-/* Style for the final 'Go Back' button - same grey as ideation back button */
+/* Style the final 'Go Back' button */
 #go-back-from-final-btn {
-    /* Base button styles (copied from .controls-section button) */
     padding: 12px 25px;
-    margin-right: 12px; /* Add margin like other control buttons */
+    margin-right: 12px;
     color: white;
     border: none;
     border-radius: 6px;
@@ -230,39 +229,37 @@ h3 {
     font-weight: 500;
     transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    /* Grey color (from .controls-section button#back-btn) */
     background-color: #6c757d;
-    /* Layout adjustment for inline display */
     display: inline-block;
 }
 
 #go-back-from-final-btn:hover:not(:disabled) {
-    /* Base hover styles (from .controls-section button:hover:not(:disabled)) */
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    /* Grey hover color (from .controls-section button#back-btn:hover:not(:disabled)) */
     background-color: #5a6268;
 }
 
+/* Style the final dream display */
 .final-dream {
-    background: #eef1f4; /* Slightly different background */
-    padding: 30px; /* More padding */
-    border-radius: 8px; /* Softer corners */
-    margin-top: 15px; /* Space from heading/controls */
-    white-space: pre-wrap; /* Preserve formatting */
-    line-height: 1.7; /* Slightly more line height for readability */
-    border: 1px solid #d6dde3; /* Subtle border */
+    background: #eef1f4;
+    padding: 30px;
+    border-radius: 8px;
+    margin-top: 15px;
+    white-space: pre-wrap;
+    line-height: 1.7;
+    border: 1px solid #d6dde3;
     color: #333;
+    font-size: 0.95em;
 }
 
-/* Spinner Styles */
+/* Style the spinner */
 .spinner {
-    margin: 0 auto 15px auto; /* Center and add space below */
+    margin: 0 auto 15px auto;
     border: 4px solid rgba(0, 0, 0, 0.1);
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    border-left-color: #007bff; /* Use a primary color */
+    border-left-color: #007bff;
     animation: spin 1s linear infinite;
 }
 
@@ -284,14 +281,137 @@ h3 {
     }
 }
 
-/* Style for the temporarily displayed submitted custom text */
+/* Style for the submitted custom text */
 .submitted-item {
-    background: #e6f4ff; /* Same as current-prompt background */
+    background: #e6f4ff;
     margin: 10px 0;
     padding: 15px 20px;
     border-radius: 8px;
-    border: 1px solid #b3d9ff; /* Matching border */
+    border: 1px solid #b3d9ff;
     font-weight: 500;
-    color: #1a3b5f; /* Darker text */
-    cursor: default; /* Not clickable */
+    color: #1a3b5f;
+    cursor: default;
+}
+
+/* Style for credits section */
+.credits-section {
+    margin-top: 50px;
+    border-top: 1px solid #e0e8f0;
+    padding-top: 20px;
+    text-align: center;
+}
+
+.credit-text {
+    color: #6c757d;
+    font-size: 0.85em;
+}
+
+.credit-text a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.credit-text a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Added for mobile responsiveness */
+@media (max-width: 600px) {
+    body {
+        padding: 15px;
+    }
+
+    .container {
+        max-width: 100%; 
+        width: auto; 
+        margin: 20px 0; 
+        padding: 20px; 
+        border-radius: 0;
+        box-shadow: none; 
+    }
+
+    h1, h3 {
+        margin-bottom: 20px; 
+    }
+
+    .prompt-list li, .options-list li {
+        padding: 12px 15px; 
+        margin: 8px 0; 
+        font-size: 0.85em;
+    }
+
+    .custom-prompt {
+        flex-direction: column; 
+        align-items: stretch; 
+    }
+
+    #custom-prompt-input,
+    #custom-followup-input {
+        margin-right: 0; 
+        margin-bottom: 10px; 
+        font-size: 0.85em; 
+    }
+
+    .custom-prompt button,
+    #submit-custom-prompt,
+    #submit-custom-followup {
+         width: 100%;  
+         padding: 14px; 
+    }
+
+    #prompt-history-display {
+        font-size: 0.8em;
+    }
+
+    .current-prompt {
+        font-size: 0.85em;
+    }
+
+
+    .controls-section {
+        display: flex;
+        flex-direction: column; 
+        align-items: stretch;
+        gap: 15px;
+        margin-bottom: 20px; 
+    }
+
+    .controls-section button {
+        width: 100%; 
+        margin-right: 0; 
+        padding: 14px; 
+        margin-bottom: 5px; 
+    }
+
+    .final-dream-section .controls {
+        display: flex;
+        flex-direction: column-reverse; 
+        align-items: stretch;
+        gap: 15px; 
+        margin-top: 20px; 
+    }
+
+    #go-back-from-final-btn,
+    #final-reset-btn {
+        width: 100%;
+        margin-right: 0;
+        padding: 14px;
+    }
+
+    .final-dream {
+        padding: 10px;
+        font-size: 0.85em;
+    }
+
+    .credits-section {
+        margin-top: 30px;
+        padding-top: 15px;
+    }
+    
+    .credit-text {
+        font-size: 0.8em;
+    }
+
 }

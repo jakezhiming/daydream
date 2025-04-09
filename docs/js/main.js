@@ -266,26 +266,21 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingIndicatorText.textContent = newMessage;
         }
         loadingIndicator.style.display = 'block';
-        // Disable buttons while loading
-        submitCustomPromptBtn.disabled = true;
-        submitCustomFollowupBtn.disabled = true;
-        if(completeBtn) completeBtn.disabled = true;
-        if(backBtn) backBtn.disabled = true;
-        if(resetBtn) resetBtn.disabled = true;
 
-        // Make list items unclickable
+        // Hide relevant buttons during loading
+        if (submitCustomPromptBtn) submitCustomPromptBtn.style.display = 'none';
+        if (submitCustomFollowupBtn) submitCustomFollowupBtn.style.display = 'none';
+        if (backBtn) backBtn.style.display = 'none';
+        if (completeBtn) completeBtn.style.display = 'none';
+        if (resetBtn) resetBtn.style.display = 'none';
+
+        // Make list items unclickable (still useful)
         const listItems = document.querySelectorAll('.prompt-list li, .options-list li');
         listItems.forEach(item => item.style.pointerEvents = 'none');
     }
 
     function hideLoading() {
         loadingIndicator.style.display = 'none';
-        // Re-enable buttons - render() will handle correct disabled state based on cycle count etc.
-        submitCustomPromptBtn.disabled = false;
-        submitCustomFollowupBtn.disabled = false;
-        
-        // Explicitly re-enable reset button, as render() doesn't manage its disabled state
-        if(resetBtn) resetBtn.disabled = false;
 
         // Make list items clickable again - render() will recreate them anyway, but good practice
         const listItems = document.querySelectorAll('.prompt-list li, .options-list li');
@@ -329,6 +324,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Show controls regardless of subsequent UI states after initial screen
         controlsSection.style.display = 'block';
+        // Explicitly show control buttons that are always present when controls are shown
+        if (backBtn) backBtn.style.display = 'inline-block';
+        if (resetBtn) resetBtn.style.display = 'inline-block';
 
         // Show current progress
         const currentStep = sessionState.steps[sessionState.currentStepIndex];
@@ -378,6 +376,14 @@ document.addEventListener('DOMContentLoaded', () => {
         completeBtn.style.display = shouldShowComplete ? 'inline-block' : 'none';
         completeBtn.disabled = !shouldShowComplete;
         completeBtn.style.cursor = shouldShowComplete ? 'pointer' : 'default'; // Use default cursor when disabled
+
+        // Ensure custom prompt buttons are visible when their sections are
+        if (initialPromptsSection.style.display === 'block' && submitCustomPromptBtn) {
+            submitCustomPromptBtn.style.display = 'inline-block'; // Or appropriate display type
+        }
+        if (optionsSection.style.display === 'block' && submitCustomFollowupBtn) {
+            submitCustomFollowupBtn.style.display = 'inline-block'; // Or appropriate display type
+        }
 
         // Ensure loading indicator is hidden after render completes, unless still loading
         if (goBackFromFinalBtn) goBackFromFinalBtn.style.display = 'none';
