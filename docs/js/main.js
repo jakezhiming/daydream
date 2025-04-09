@@ -243,16 +243,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Note: render() will be called within fetchExpansions's finally block
         // render() will rebuild the lists, automatically removing the hidden styles.
     }
-    
-    function populateOptions(options) {
-        optionsList.innerHTML = '';
-        options.forEach(optionText => {
-            const li = document.createElement('li');
-            li.textContent = optionText;
-            li.addEventListener('click', () => handlePromptSelection(optionText));
-            optionsList.appendChild(li);
-        });
-    }
 
     function showLoading(message = null) {
         errorMessage.style.display = 'none';
