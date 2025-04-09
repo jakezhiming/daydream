@@ -319,6 +319,10 @@ document.addEventListener('DOMContentLoaded', () => {
             initialPromptsSection.style.display = 'block';
             customPromptInput.value = ''; // Clear input
             initialPromptsSection.querySelector('.custom-prompt').style.display = 'flex'; // Ensure input is visible
+            // Ensure the custom prompt button is visible here
+            if (submitCustomPromptBtn) {
+                submitCustomPromptBtn.style.display = 'inline-block'; // Or appropriate display type
+            }
             return;
         }
 
@@ -378,9 +382,6 @@ document.addEventListener('DOMContentLoaded', () => {
         completeBtn.style.cursor = shouldShowComplete ? 'pointer' : 'default'; // Use default cursor when disabled
 
         // Ensure custom prompt buttons are visible when their sections are
-        if (initialPromptsSection.style.display === 'block' && submitCustomPromptBtn) {
-            submitCustomPromptBtn.style.display = 'inline-block'; // Or appropriate display type
-        }
         if (optionsSection.style.display === 'block' && submitCustomFollowupBtn) {
             submitCustomFollowupBtn.style.display = 'inline-block'; // Or appropriate display type
         }
