@@ -44,20 +44,20 @@ export const loadingMessages = {
 }; 
 
 export function formExpansionPrompt(fullPromptText) {
-    const systemMessage = `You are a creative assistant helping a user expand their daydreaming thoughts. 
-    Given the preceding daydream sequence, generate exactly 5 very short, simple, distinct and creative continuation prompts. 
-    Make sure to have 1 prompt that provides a wildly different direction than the rest of the prompts.
-    Provide *only* the 5 prompts, each on a new line, without any numbering, bullets, or introductory text.`;
+    const systemMessage = `You are a creative assistant helping a user expand their brainstorming thoughts. 
+    Given the preceding brainstorming sequence, generate exactly 5 very short (5-10 words), distinct and creative continuation thoughts. The thoughts doesn't need to be complete sentences.
+    Make sure to have 1 thought that provides a wildly different but related direction than the preceding brainstorming sequence.
+    Provide *only* the 5 thoughts, each on a new line, without any numbering, bullets, or introductory text.`;
             
-    const userMessage = `Continue this daydream sequence:\n---\n${fullPromptText}\n---`;
+    const userMessage = `Continue this brainstorming sequence:\n---\n${fullPromptText}\n---`;
     return { systemMessage, userMessage }
 }
 
 export function formCompletionPrompt(fullPromptText) {
-    const systemMessage = `You are a summarization assistant. Synthesize the following sequence of thoughts 
-    into a single, coherent paragraph representing the final 'daydream' or concept. 
+    const systemMessage = `You are a summarization assistant. Synthesize the following sequence of brainstorming thoughts 
+    into a single, coherent paragraph representing the final thought or concept. 
     Capture the essence of the journey.`;
     
-    const userMessage = `Summarize this ideation sequence:\n---\n${fullPromptText}\n---`;
+    const userMessage = `Summarize this brainstorming sequence:\n---\n${fullPromptText}\n---`;
     return { systemMessage, userMessage }
 }

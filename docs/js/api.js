@@ -72,8 +72,8 @@ async function getLLMResponse(promptHistory, taskType = 'expand') {
             {"role": "system", "content": systemMessage},
             {"role": "user", "content": userMessage}
         ],
-        "max_tokens": 200,
-        "temperature": 0.3,
+        "max_tokens": appConfig.MAX_TOKENS,
+        "temperature": appConfig.TEMPERATURE,
     };
 
     try {
