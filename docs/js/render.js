@@ -87,6 +87,11 @@ function updateButtons() {
     completeBtn.style.display = shouldShowComplete ? 'inline-block' : 'none';
     completeBtn.disabled = !shouldShowComplete;
     completeBtn.style.cursor = shouldShowComplete ? 'pointer' : 'default';
+    
+    const completeNote = document.getElementById('complete-note');
+    if (completeNote) {
+        completeNote.style.display = shouldShowComplete ? 'block' : 'none';
+    }
 
     if (optionsSection.style.display === 'block' && submitCustomFollowupBtn) {
         submitCustomFollowupBtn.style.display = 'inline-block';

@@ -157,6 +157,17 @@ h3 {
     word-wrap: break-word;
 }
 
+/* Style for the complete note */
+.complete-note {
+    font-size: 0.85em;
+    color: #28a745;
+    padding: 10px;
+    background-color: #f0fff4;
+    border-radius: 6px;
+    border: 1px solid #c3e6cb;
+    text-align: center;
+}
+
 /* Style the loading indicator */
 .loading-indicator {
     text-align: center;
