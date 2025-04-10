@@ -19,7 +19,7 @@ import {
     displaySubmittedItem
 } from './ui.js';
 
-import { DaydreamConfig } from './config.js';
+import { loadingMessages } from './prompts.js';
 import { getRandomMessage } from './utils.js';
 import { fetchExpansions, fetchCompletion } from './api.js';
 import { sessionState, saveState, resetState } from './state.js';
@@ -192,7 +192,7 @@ let lastWakingMessage = '';
 async function handleCompletion() {
     hideError();
     optionsSection.style.display = 'none';
-    const newWakingMessage = getRandomMessage(DaydreamConfig.WAKING_MESSAGES, lastWakingMessage);
+    const newWakingMessage = getRandomMessage(loadingMessages.finalScreenMessages, lastWakingMessage);
     lastWakingMessage = newWakingMessage;
     showLoading(lastWakingMessage);
     

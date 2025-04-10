@@ -23,7 +23,7 @@ import {
 
 import { sessionState, resetState } from './state.js';
 import { handlePromptSelection, attachOptionEventListeners } from './handler.js';
-import { DaydreamConfig } from './config.js';
+import { appConfig } from './config.js';
 import { fallbackCopyTextToClipboard } from './utils.js';
 
 function hideAllSections() {
@@ -83,7 +83,7 @@ function updateButtons() {
     backBtn.disabled = sessionState.currentStepIndex < 0;
 
     const cycleCount = sessionState.currentStepIndex + 1;
-    const shouldShowComplete = cycleCount >= DaydreamConfig.MIN_CYCLES_FOR_COMPLETE;
+    const shouldShowComplete = cycleCount >= appConfig.MIN_CYCLES_FOR_COMPLETE;
     completeBtn.style.display = shouldShowComplete ? 'inline-block' : 'none';
     completeBtn.disabled = !shouldShowComplete;
     completeBtn.style.cursor = shouldShowComplete ? 'pointer' : 'default';

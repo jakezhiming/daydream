@@ -1,4 +1,4 @@
-import { DaydreamConfig } from './config.js';
+import { appConfig } from './config.js';
 
 export let sessionState = {
     steps: [], // Array of { prompt: string, options: string[] }
@@ -9,7 +9,7 @@ export let sessionState = {
 
 export function saveState() {
     try {
-        localStorage.setItem(DaydreamConfig.STORAGE_KEY, JSON.stringify(sessionState));
+        localStorage.setItem(appConfig.STORAGE_KEY, JSON.stringify(sessionState));
     } catch (e) {
         console.error("Failed to save state to localStorage:", e);
     }
@@ -17,7 +17,7 @@ export function saveState() {
 
 export function loadState() {
     try {
-        const savedState = localStorage.getItem(DaydreamConfig.STORAGE_KEY);
+        const savedState = localStorage.getItem(appConfig.STORAGE_KEY);
         if (savedState) {
             sessionState = JSON.parse(savedState);
             if (!Array.isArray(sessionState.steps)) sessionState.steps = [];
@@ -56,5 +56,5 @@ export function resetState() {
         isComplete: false,
         finalSummary: null
     };
-    localStorage.removeItem(DaydreamConfig.STORAGE_KEY);
+    localStorage.removeItem(appConfig.STORAGE_KEY);
 }

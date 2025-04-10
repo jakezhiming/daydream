@@ -1,5 +1,5 @@
 // Import from modules
-import { DaydreamConfig } from './config.js';
+import { loadingMessages, defaultStartPrompts } from './prompts.js';
 import { getRandomMessage } from './utils.js';
 
 // --- DOM Elements ---
@@ -40,7 +40,7 @@ export function showLoading(message = null) {
     if (message) {
         loadingIndicatorText.textContent = message;
     } else {
-        const newMessage = getRandomMessage(DaydreamConfig.LOADING_MESSAGES, lastLoadingMessage);
+        const newMessage = getRandomMessage(loadingMessages.promptSelectionMessages, lastLoadingMessage);
         lastLoadingMessage = newMessage;
         loadingIndicatorText.textContent = newMessage;
     }
@@ -69,7 +69,7 @@ export function hideError() {
 
 export function populateDefaultPrompts(onPromptSelect) {
     initialPromptList.innerHTML = '';
-    const shuffledPrompts = [...DaydreamConfig.DEFAULT_PROMPTS].sort(() => Math.random() - 0.5);
+    const shuffledPrompts = [...defaultStartPrompts].sort(() => Math.random() - 0.5);
     const selectedPrompts = shuffledPrompts.slice(0, 5);
 
     selectedPrompts.forEach(promptText => {

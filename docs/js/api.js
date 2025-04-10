@@ -1,5 +1,6 @@
-import { DaydreamConfig } from './config.js';
+import { appConfig } from './config.js';
 import { getProxyToken } from './utils.js';
+import { formExpansionPrompt, formCompletionPrompt } from './prompts.js';
 
 export async function fetchExpansions(historyForAPI) {
     try {
@@ -32,8 +33,8 @@ export async function fetchCompletion(historyForAPI) {
 }
 
 async function getLLMResponse(promptHistory, taskType = 'expand') {
-    const proxyServerUrl = DaydreamConfig.PROXY_SERVER_URL;
-    const proxyToken = getProxyToken(DaydreamConfig.PROXY_TOKEN_PARTS);
+    const proxyServerUrl = appConfig.PROXY_SERVER_URL;
+    const proxyToken = getProxyToken(appConfig.PROXY_TOKEN_PARTS);
     
     if (!proxyServerUrl) {
         console.error("Proxy server URL not configured");
@@ -52,26 +53,21 @@ async function getLLMResponse(promptHistory, taskType = 'expand') {
     let userMessage = "";
 
     if (taskType === 'expand') {
-        systemMessage = `You are a creative assistant helping a user expand their daydreaming thoughts. 
-Given the preceding daydream sequence, generate exactly 5 very short, simple, distinct and creative continuation prompts. 
-Make sure to have 1 prompt that provides a wildly different direction than the rest of the prompts.
-Provide *only* the 5 prompts, each on a new line, without any numbering, bullets, or introductory text.`;
-        
-        userMessage = `Continue this daydream sequence:\n---\n${fullPromptText}\n---`;
+        const result = formExpansionPrompt(fullPromptText);
+        systemMessage = result.systemMessage;
+        userMessage = result.userMessage;
     } 
     else if (taskType === 'complete') {
-        systemMessage = `You are a summarization assistant. Synthesize the following sequence of thoughts 
-into a single, coherent paragraph representing the final 'daydream' or concept. 
-Capture the essence of the journey.`;
-
-        userMessage = `Summarize this ideation sequence:\n---\n${fullPromptText}\n---`;
+        const result = formCompletionPrompt(fullPromptText);
+        systemMessage = result.systemMessage;
+        userMessage = result.userMessage;
     } 
     else {
         return { status: 'error', message: 'Invalid task type specified.' };
     }
 
     const payload = {
-        "model": DaydreamConfig.OPENAI_MODEL,
+        "model": appConfig.OPENAI_MODEL,
         "messages": [
             {"role": "system", "content": systemMessage},
             {"role": "user", "content": userMessage}
