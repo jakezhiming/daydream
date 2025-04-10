@@ -10,6 +10,7 @@ export const submitCustomStartBtn = document.getElementById('submit-custom-start
 
 export const currentPromptSection = document.getElementById('current-prompt-section');
 export const currentPromptText = document.getElementById('current-prompt-text');
+export const completeNote = document.getElementById('complete-note');
 export const promptHistoryDisplay = document.getElementById('prompt-history-display');
 
 export const optionsSection = document.getElementById('options-section');

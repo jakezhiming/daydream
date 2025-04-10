@@ -5,6 +5,7 @@ import {
     controlsSection,
     finalDreamSection,
     currentPromptText,
+    completeNote,
     promptHistoryDisplay,
     optionsList,
     customStartInput,
@@ -32,6 +33,7 @@ function hideAllSections() {
     optionsSection.style.display = 'none';
     controlsSection.style.display = 'none';
     finalDreamSection.style.display = 'none';
+    completeNote.style.display = 'none';
 }
 
 function renderInitialScreen() {
@@ -88,7 +90,6 @@ function updateButtons() {
     completeBtn.disabled = !shouldShowComplete;
     completeBtn.style.cursor = shouldShowComplete ? 'pointer' : 'default';
     
-    const completeNote = document.getElementById('complete-note');
     if (completeNote) {
         completeNote.style.display = shouldShowComplete ? 'block' : 'none';
     }
