@@ -8,6 +8,7 @@ import {
     customFollowupInput, 
     submitCustomFollowupBtn,
     backBtn,
+    completeNote,
     completeBtn,
     resetBtn,
     finalResetBtn,
@@ -192,6 +193,7 @@ let lastWakingMessage = '';
 async function handleCompletion() {
     hideError();
     optionsSection.style.display = 'none';
+    completeNote.style.display = 'none';
     const newWakingMessage = getRandomMessage(loadingMessages.finalScreenMessages, lastWakingMessage);
     lastWakingMessage = newWakingMessage;
     showLoading(lastWakingMessage);

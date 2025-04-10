@@ -33,8 +33,8 @@ Daydream creates an engaging creative thinking environment where ideas evolve or
 3.  **Update the frontend configuration:**
     Edit `docs/js/config.js` to match your proxy server settings:
     ```javascript
-    const config = {
-        proxyUrl: 'http://localhost:10000/api/openai', // Update this URL to your Render-hosted proxy server
+    const appConfig = {
+        PROXY_SERVER_URL: 'http://localhost:10000/', // Update this URL to your proxy server
     };
     ```
 
@@ -46,9 +46,9 @@ The application uses a proxy server to handle API calls to OpenAI, which helps a
    Ensure your `.env` file has the following entries:
    ```
    OPENAI_API_KEY=your_openai_api_key_here
-   OPENAI_MODEL=gpt-4o-mini
+   OPENAI_RATE_LIMIT=60
    PROXY_TOKEN=your_secure_proxy_token_here
-   CORS_ALLOW_ORIGIN=http://localhost:8000
+   CORS_ALLOW_ORIGIN=http://127.0.0.1:8000 // Update this URL to your static file server
    ```
 
 2. **Start the proxy server:**
