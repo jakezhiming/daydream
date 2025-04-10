@@ -1,71 +1,33 @@
 import { DaydreamConfig } from './config.js';
-import { sessionState, saveState } from './state.js';
-import { showLoading, hideLoading, hideError, showError, optionsSection } from './ui.js';
-import { getRandomMessage, getProxyToken } from './utils.js';
-import { render } from './render.js';
+import { getProxyToken } from './utils.js';
 
-export async function fetchExpansions(chosenPrompt) {
-    showLoading();
-    hideError();
-
-    const historyForAPI = sessionState.currentStepIndex === -1
-        ? [chosenPrompt]
-        : sessionState.steps.slice(0, sessionState.currentStepIndex + 1).map(s => s.prompt).concat(chosenPrompt);
-
+export async function fetchExpansions(historyForAPI) {
     try {
         const result = await getLLMResponse(historyForAPI, 'expand');
 
         if (result.status === 'success' && result.data) {
-            const fetchedOptions = result.data;
-            const newStep = { prompt: chosenPrompt, options: fetchedOptions };
-
-            sessionState.currentStepIndex++;
-            sessionState.steps = sessionState.steps.slice(0, sessionState.currentStepIndex);
-            sessionState.steps.push(newStep);
-
-            sessionState.isComplete = false;
-            sessionState.finalSummary = null;
-            saveState();
+            return result.data;
         } else {
             throw new Error(result.message || 'Failed to get expansions from AI.');
         }
     } catch (error) {
-        console.error('Error fetching expansions:', error);
-        showError(`Failed to get next steps: ${error.message}. Please try again.`);
-    } finally {
-        hideLoading();
-        render();
+        console.error('Error during expansion API call:', error);
+        throw error;
     }
 }
 
-let lastWakingMessage = '';
-
-export async function fetchCompletion() {
-    hideError();
-    
-    optionsSection.style.display = 'none';
-    const newWakingMessage = getRandomMessage(DaydreamConfig.WAKING_MESSAGES, lastWakingMessage);
-    lastWakingMessage = newWakingMessage;
-    showLoading(newWakingMessage);
-
-    const historyForAPI = sessionState.steps.slice(0, sessionState.currentStepIndex + 1).map(s => s.prompt);
-
+export async function fetchCompletion(historyForAPI) {
     try {
         const result = await getLLMResponse(historyForAPI, 'complete');
 
         if (result.status === 'success' && result.data) {
-            sessionState.isComplete = true;
-            sessionState.finalSummary = result.data;
-            saveState();
+            return result.data;
         } else {
             throw new Error(result.message || 'Failed to complete dream with AI.');
         }
     } catch (error) {
-        console.error('Error completing dream:', error);
-        showError(`Failed to complete your dream: ${error.message}. Please try again.`);
-    } finally {
-        hideLoading();
-        render();
+        console.error('Error during completion API call:', error);
+        throw error;
     }
 }
 

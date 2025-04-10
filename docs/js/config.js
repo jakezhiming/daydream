@@ -1,7 +1,7 @@
 export const DaydreamConfig = {
     // Update this URL to your Render-hosted proxy server
-    // PROXY_SERVER_URL: 'https://dasher-30lv.onrender.com/',
-    PROXY_SERVER_URL: 'http://localhost:10000/',
+    PROXY_SERVER_URL: 'https://dasher-30lv.onrender.com/',
+    // PROXY_SERVER_URL: 'http://localhost:10000/',
     OPENAI_MODEL: 'gpt-4o-mini',
     MIN_CYCLES_FOR_COMPLETE: 3,
     DEFAULT_PROMPTS: [

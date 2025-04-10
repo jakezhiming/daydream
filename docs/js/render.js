@@ -7,9 +7,9 @@ import {
     currentPromptText,
     promptHistoryDisplay,
     optionsList,
-    customPromptInput,
+    customStartInput,
     customFollowupInput,
-    submitCustomPromptBtn,
+    submitCustomStartBtn,
     submitCustomFollowupBtn,
     backBtn,
     resetBtn,
@@ -22,80 +22,64 @@ import {
 } from './ui.js';
 
 import { sessionState, resetState } from './state.js';
-import { handlePromptSelection } from './handler.js';
+import { handlePromptSelection, attachOptionEventListeners } from './handler.js';
 import { DaydreamConfig } from './config.js';
 import { fallbackCopyTextToClipboard } from './utils.js';
 
-export function render() {
-    hideError();
-
-    // Hide all sections first
+function hideAllSections() {
     initialPromptsSection.style.display = 'none';
     currentPromptSection.style.display = 'none';
     optionsSection.style.display = 'none';
     controlsSection.style.display = 'none';
     finalDreamSection.style.display = 'none';
+}
 
-    if (sessionState.isComplete && sessionState.finalSummary) {
-        renderFinalDream(sessionState.finalSummary);
-        return;
+function renderInitialScreen() {
+    populateDefaultPrompts(handlePromptSelection);
+    initialPromptsSection.style.display = 'block';
+    customStartInput.value = '';
+    initialPromptsSection.querySelector('.custom-start').style.display = 'flex';
+    if (submitCustomStartBtn) {
+        submitCustomStartBtn.style.display = 'inline-block';
     }
+}
 
-    // Initial Screen (first visit or after reset)
-    if (sessionState.currentStepIndex === -1) {
-        populateDefaultPrompts(handlePromptSelection);
-        initialPromptsSection.style.display = 'block';
-        customPromptInput.value = '';
-        initialPromptsSection.querySelector('.custom-prompt').style.display = 'flex';
-        if (submitCustomPromptBtn) {
-            submitCustomPromptBtn.style.display = 'inline-block';
-        }
-        return;
-    }
-
-    // Show controls regardless of subsequent UI states after initial screen
-    controlsSection.style.display = 'block';
-    if (backBtn) backBtn.style.display = 'inline-block';
-    if (resetBtn) resetBtn.style.display = 'inline-block';
-
-    // Show current progress
-    const currentStep = sessionState.steps[sessionState.currentStepIndex];
-    if (!currentStep) {
-        console.error("Render error: Invalid currentStepIndex or missing step data.", sessionState);
-        showError("An internal error occurred. Please try resetting.");
-        resetState();
-        render();
-        return;
-    }
-
-    // Display current prompt and history breadcrumbs
+function renderCurrentPrompt(currentStep) {
     currentPromptText.textContent = currentStep.prompt;
     currentPromptSection.style.display = 'block';
 
+    // Update prompt history display
     promptHistoryDisplay.textContent = sessionState.steps
         .slice(0, sessionState.currentStepIndex)
         .map(s => s.prompt)
         .join(' → ') + 
         (sessionState.currentStepIndex > 0 ? ' → ' : '');
+}
 
-    // Display AI options from the current step's saved options
+function renderNextPrompts(currentStep) {
     optionsList.innerHTML = '';
     if (currentStep.options && Array.isArray(currentStep.options)) {
         currentStep.options.forEach(option => {
             const li = document.createElement('li');
             li.textContent = option;
-            li.addEventListener('click', () => handlePromptSelection(option));
             optionsList.appendChild(li);
         });
+        attachOptionEventListeners();
+        
     } else {
         console.warn("No options found for the current step:", currentStep);
     }
 
     customFollowupInput.value = '';
-    optionsSection.querySelector('.custom-prompt').style.display = 'flex';
+    optionsSection.querySelector('.custom-start').style.display = 'flex';
     optionsSection.style.display = 'block';
+}
 
-    // Update controls
+function updateButtons() {
+    controlsSection.style.display = 'block';
+    if (backBtn) backBtn.style.display = 'inline-block';
+    if (resetBtn) resetBtn.style.display = 'inline-block';
+    
     backBtn.disabled = sessionState.currentStepIndex < 0;
 
     const cycleCount = sessionState.currentStepIndex + 1;
@@ -111,17 +95,16 @@ export function render() {
     if (goBackFromFinalBtn) goBackFromFinalBtn.style.display = 'none';
 }
 
-export function renderFinalDream(summary) {
-    initialPromptsSection.style.display = 'none';
-    currentPromptSection.style.display = 'none';
-    optionsSection.style.display = 'none';
-    controlsSection.style.display = 'none';
+export function renderFinalScreen(summary) {
+    hideAllSections();
     finalDreamSection.style.display = 'block';
     if (goBackFromFinalBtn) goBackFromFinalBtn.style.display = 'inline-block';
 
     finalDreamText.textContent = summary;
-    
-    // Setup share button functionality
+    setupShareButton(summary);
+}
+
+function setupShareButton(summary) {
     const shareDreamBtn = document.getElementById('share-dream-btn');
     if (shareDreamBtn) {
         shareDreamBtn.style.display = 'inline-block';
@@ -147,14 +130,45 @@ export function renderFinalDream(summary) {
                             }, 3000);
                         })
                         .catch(err => {
-                            console.error('Failed to copy with Clipboard API: ', err);
+                            console.warn('Failed to copy with Clipboard API: ', err);
                             fallbackCopyTextToClipboard(textToCopy, newShareBtn);
                         });
                 } else {
-                    console.error('Clipboard API not supported');
+                    console.warn('Clipboard API not supported');
                     fallbackCopyTextToClipboard(textToCopy, newShareBtn);
                 }
             }
         });
     }
+}
+
+export function render() {
+    hideError();
+    hideAllSections();
+
+    // Final screen
+    if (sessionState.isComplete && sessionState.finalSummary) {
+        renderFinalScreen(sessionState.finalSummary);
+        return;
+    }
+
+    // Initial screen
+    if (sessionState.currentStepIndex === -1) {
+        renderInitialScreen();
+        return;
+    }
+
+    // Current step
+    const currentStep = sessionState.steps[sessionState.currentStepIndex];
+    if (!currentStep) {
+        console.error("Render error: Invalid currentStepIndex or missing step data.", sessionState);
+        showError("An internal error occurred. Please try resetting.");
+        resetState();
+        render();
+        return;
+    }
+
+    renderCurrentPrompt(currentStep);
+    renderNextPrompts(currentStep);
+    updateButtons();
 }

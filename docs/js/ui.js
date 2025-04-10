@@ -5,8 +5,8 @@ import { getRandomMessage } from './utils.js';
 // --- DOM Elements ---
 export const initialPromptsSection = document.getElementById('initial-prompts-section');
 export const initialPromptList = document.getElementById('initial-prompt-list');
-export const customPromptInput = document.getElementById('custom-prompt-input');
-export const submitCustomPromptBtn = document.getElementById('submit-custom-prompt');
+export const customStartInput = document.getElementById('custom-start-input');
+export const submitCustomStartBtn = document.getElementById('submit-custom-start');
 
 export const currentPromptSection = document.getElementById('current-prompt-section');
 export const currentPromptText = document.getElementById('current-prompt-text');
@@ -47,7 +47,7 @@ export function showLoading(message = null) {
     loadingIndicator.style.display = 'block';
 
     // Hide relevant buttons during loading
-    if (submitCustomPromptBtn) submitCustomPromptBtn.style.display = 'none';
+    if (submitCustomStartBtn) submitCustomStartBtn.style.display = 'none';
     if (submitCustomFollowupBtn) submitCustomFollowupBtn.style.display = 'none';
     if (backBtn) backBtn.style.display = 'none';
     if (completeBtn) completeBtn.style.display = 'none';
