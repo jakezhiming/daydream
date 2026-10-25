@@ -8,6 +8,7 @@ Usage:
 
 import os
 import argparse
+import hmac
 import time
 import asyncio
 import httpx
@@ -31,6 +32,21 @@ logger = logging.getLogger(__name__)
 # Security
 CORS_ALLOW_ORIGIN = os.getenv("CORS_ALLOW_ORIGIN", "*")
 PROXY_TOKEN = os.getenv("PROXY_TOKEN")
+if not PROXY_TOKEN:
+    logger.warning("PROXY_TOKEN not found in environment variables")
+    logger.warning("Refusing to start without a proxy token")
+    exit()
+
+# The proxy token ships in the public web client, so it cannot be relied on to
+# keep the proxy private. Requests are rebuilt from an allowlist instead, so the
+# proxy can only be used for the small chat completions the app makes.
+ALLOWED_MODELS = set(
+    m.strip() for m in os.getenv("OPENAI_ALLOWED_MODELS", "gpt-4o-mini").split(",") if m.strip()
+)
+MAX_TOKENS_LIMIT = int(os.getenv("OPENAI_MAX_TOKENS", "200"))
+MAX_MESSAGES = 10
+MAX_MESSAGE_CHARS = 8000
+ALLOWED_ROLES = {"system", "user", "assistant"}
 
 # API key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -45,7 +61,56 @@ MAX_REQUESTS_PER_MINUTE = int(os.getenv("OPENAI_RATE_LIMIT", "60"))
 
 # Create Quart app
 app = Quart(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 64 * 1024
 app = cors(app, allow_origin=CORS_ALLOW_ORIGIN)
+
+
+def is_authorized():
+    """Check the request's proxy token in constant time"""
+    token = request.headers.get("X-API-Token", "")
+    return hmac.compare_digest(token.encode(), PROXY_TOKEN.encode())
+
+
+def build_openai_payload(data):
+    """Rebuild a client request from allowed fields only, or return None if invalid"""
+    if not isinstance(data, dict):
+        return None
+
+    model = data.get("model")
+    if model not in ALLOWED_MODELS:
+        return None
+
+    messages = data.get("messages")
+    if not isinstance(messages, list) or not 0 < len(messages) <= MAX_MESSAGES:
+        return None
+    clean_messages = []
+    for message in messages:
+        if not isinstance(message, dict):
+            return None
+        role = message.get("role")
+        content = message.get("content")
+        if role not in ALLOWED_ROLES or not isinstance(content, str):
+            return None
+        if len(content) > MAX_MESSAGE_CHARS:
+            return None
+        clean_messages.append({"role": role, "content": content})
+
+    max_tokens = data.get("max_tokens", MAX_TOKENS_LIMIT)
+    if not isinstance(max_tokens, int) or isinstance(max_tokens, bool):
+        return None
+    max_tokens = max(1, min(max_tokens, MAX_TOKENS_LIMIT))
+
+    temperature = data.get("temperature", 1.0)
+    if not isinstance(temperature, (int, float)) or isinstance(temperature, bool):
+        return None
+    temperature = max(0.0, min(float(temperature), 2.0))
+
+    return {
+        "model": model,
+        "messages": clean_messages,
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+    }
 
 
 def check_rate_limit():
@@ -74,7 +139,7 @@ async def ping():
 
 @app.route("/api/openai", methods=["POST"])
 async def proxy_openai():
-    if request.headers.get("X-API-Token") != PROXY_TOKEN:
+    if not is_authorized():
         return "Unauthorized", 401
 
     # Check rate limit
@@ -83,11 +148,15 @@ async def proxy_openai():
         return "Rate limit exceeded. Please try again later.", 429
 
     # Get request data
-    data = await request.get_json()
+    data = await request.get_json(silent=True)
+    payload = build_openai_payload(data)
+    if payload is None:
+        logger.warning("Rejected invalid OpenAI request payload")
+        return "Invalid request", 400
     client_ip = request.remote_addr
 
     # Log the request
-    logger.info(f"Request from {client_ip} - Model: {data.get('model', 'unknown')}")
+    logger.info(f"Request from {client_ip} - Model: {payload['model']}")
 
     # Forward request to OpenAI asynchronously
     try:
@@ -98,7 +167,7 @@ async def proxy_openai():
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {OPENAI_API_KEY}",
                 },
-                json=data,
+                json=payload,
                 timeout=10,
             )
 
@@ -114,11 +183,11 @@ async def proxy_openai():
 
     except httpx.RequestError as e:
         logger.error(f"Error forwarding request to OpenAI: {str(e)}")
-        return str(e), 500
+        return "Error forwarding request to OpenAI", 502
 
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
-        return str(e), 500
+        return "Internal server error", 500
 
 
 def main():
